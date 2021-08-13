@@ -15,7 +15,7 @@ jobs:
     - uses: actions/checkout@v2
     - uses: dlang-community/setup-dlang@v1
       with:
-        compiler: dmd-latest
+        compiler: ldc-latest
 
     - name: Build & Test
       run: |
