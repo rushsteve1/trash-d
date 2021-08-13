@@ -40,7 +40,7 @@ import std.string;
 import std.conv : to;
 
 // trash-d is versioned sequentially starting at 1
-const int VER = 3;
+const int VER = 4;
 
 struct Opts {
     bool recursive;
@@ -105,24 +105,23 @@ void log(string s, string p) {
 }
 
 int main(string[] args) {
-    auto arglen = args.length;
+    const ulong arglen = args.length;
 
     // Parse CLI options
     GetoptResult helpInfo;
     try {
-        helpInfo = getopt(args, std.getopt.config.bundling,
-            "recursive|r", "Delete directories and their contents", &OPTS.recursive,
-            "verbose|v", "Print more information", &OPTS.verbose,
-            "interactive|i", "Ask before each deletion", &OPTS.interactive,
-            "force|f", "Ignore non-existant and don't prompt", &OPTS.force,
-            "empty", "Empty the trash bin", &OPTS.empty,
-            "delete", "Delete a file from the trash", &OPTS.del,
-            "list", "List out the files in the trash", &OPTS.list,
-            "restore", "Restore a file from the trash", &OPTS.restore,
-            "version", "Output the version and exit", &OPTS.ver,
-        );
+        helpInfo = getopt(args, std.getopt.config.bundling, "recursive|r",
+                "Delete directories and their contents", &OPTS.recursive,
+                "verbose|v", "Print more information", &OPTS.verbose, "interactive|i",
+                "Ask before each deletion", &OPTS.interactive, "force|f",
+                "Ignore non-existant and don't prompt", &OPTS.force, "empty",
+                "Empty the trash bin", &OPTS.empty, "delete",
+                "Delete a file from the trash", &OPTS.del, "list",
+                "List out the files in the trash", &OPTS.list, "restore",
+                "Restore a file from the trash", &OPTS.restore,
+                "version", "Output the version and exit", &OPTS.ver,);
     } catch (GetOptException e) {
-        stderr.writeln(e);
+        stderr.writeln(e.message());
     }
 
     // Handle requests for help text
@@ -244,18 +243,23 @@ int trash(string path) {
     auto now = Clock.currTime();
     TrashInfo tinfo = TrashInfo(path, now);
 
-    // Move the file to the trash files dir
-    path.rename(file);
+    try {
+        // Move the file to the trash files dir
+        path.rename(file);
 
-    // Writ the .trashinfo file
-    info.append(tinfo.toString());
+        // Writ the .trashinfo file
+        info.append(tinfo.toString());
 
-    if (file.isDir()) {
-        auto size = file.getSize();
-        OPTS.dirsize_file.append(format("%s %s %s", size, now.toUnixTime(), name));
+        if (file.isDir()) {
+            auto size = file.getSize();
+            OPTS.dirsize_file.append(format("%s %s %s", size, now.toUnixTime(), name));
+        }
+
+        return 0;
+    } catch (FileException e) {
+        stderr.writeln(e.message());
+        return 1;
     }
-
-    return 0;
 }
 
 void empty() {
@@ -320,8 +324,13 @@ int del(string name) {
 
     log("Deleting: ", name);
 
-    file.remove();
-    info.exists() && info.remove();
+    try {
+        file.remove();
+        info.exists() && info.remove();
+    } catch (FileException e) {
+        stderr.writeln(e.message());
+        return 1;
+    }
 
     return 0;
 }
@@ -350,8 +359,13 @@ int restore(string name) {
     log("Restoring: ", name);
 
     TrashInfo tinfo = TrashInfo(info.readText());
-    file.rename(tinfo.path);
-    info.remove();
+    try {
+        file.rename(tinfo.path);
+        info.remove();
+    } catch (FileException e) {
+        stderr.writeln(e.message());
+        return 1;
+    }
 
     return 0;
 }

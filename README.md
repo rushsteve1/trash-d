@@ -31,3 +31,9 @@ going to do *too* much.
 
 `trash-d` is licensed under the terms of the [MIT License](./LICENSE).
 You are free to use it for any purpose under the terms of that license.
+
+## Known Limitations
+
+- You can't trash a file across a filesystem border. This can lead to issues
+  when trashing from `tmpfs` or removable drives.
+  Contributions towards fixing this are welcome!
