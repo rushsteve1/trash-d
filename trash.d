@@ -40,7 +40,7 @@ import std.string;
 import std.conv : to;
 
 // trash-d is versioned sequentially starting at 1
-const int VER = 2;
+const int VER = 3;
 
 struct Opts {
     bool recursive;
@@ -50,6 +50,7 @@ struct Opts {
     bool list;
     bool empty;
     string restore;
+    string del;
     string trash_dir;
     bool ver;
 
@@ -109,15 +110,17 @@ int main(string[] args) {
     // Parse CLI options
     GetoptResult helpInfo;
     try {
-        helpInfo = getopt(args, std.getopt.config.bundling, "recursive|r",
-                "Delete directories and their contents", &OPTS.recursive,
-                "verbose|v", "Print more information", &OPTS.verbose, "interactive|i",
-                "Ask before each deletion", &OPTS.interactive, "force|f",
-                "Ignore non-existant and don't prompt", &OPTS.force, "empty",
-                "Empty the trash bin", &OPTS.empty, "list",
-                "List out the files in the trash",
-                &OPTS.list, "restore", "Restore a file from the trash", &OPTS.restore,
-                "version", "Output the version and exit", &OPTS.ver,);
+        helpInfo = getopt(args, std.getopt.config.bundling,
+            "recursive|r", "Delete directories and their contents", &OPTS.recursive,
+            "verbose|v", "Print more information", &OPTS.verbose,
+            "interactive|i", "Ask before each deletion", &OPTS.interactive,
+            "force|f", "Ignore non-existant and don't prompt", &OPTS.force,
+            "empty", "Empty the trash bin", &OPTS.empty,
+            "delete", "Delete a file from the trash", &OPTS.del,
+            "list", "List out the files in the trash", &OPTS.list,
+            "restore", "Restore a file from the trash", &OPTS.restore,
+            "version", "Output the version and exit", &OPTS.ver,
+        );
     } catch (GetOptException e) {
         stderr.writeln(e);
     }
@@ -168,6 +171,11 @@ int main(string[] args) {
     if (OPTS.list) {
         list();
         return 0;
+    }
+
+    // Handle deleting a file
+    if (OPTS.del) {
+        return del(OPTS.del);
     }
 
     // Handle restoring trash files
@@ -294,26 +302,41 @@ void list() {
 
 }
 
-int restore(string path) {
-    string file = OPTS.files_dir ~ "/" ~ path;
-    string info = OPTS.info_dir ~ "/" ~ path ~ ".trashinfo";
+int del(string name) {
+    string file = OPTS.files_dir ~ "/" ~ name;
+    string info = OPTS.info_dir ~ "/" ~ name ~ ".trashinfo";
 
     if (!exists(file)) {
-        stderr.writefln("trash: cannot restore '%s': No such file or directory", path);
+        stderr.writefln("trash: cannot delete '%s': No such file or directory", name);
+        return 1;
+    }
+
+    log("Deleting: ", name);
+
+    file.remove();
+    info.exists() && info.remove();
+
+    return 0;
+}
+
+int restore(string name) {
+    string file = OPTS.files_dir ~ "/" ~ name;
+    string info = OPTS.info_dir ~ "/" ~ name ~ ".trashinfo";
+
+    if (!exists(file)) {
+        stderr.writefln("trash: cannot restore '%s': No such file or directory", name);
         return 1;
     }
 
     if (!exists(info)) {
-        stderr.writefln("trash: cannot restore '%s': No trashinfo file", path);
+        stderr.writefln("trash: cannot restore '%s': No trashinfo file", name);
         return 1;
     }
 
+    log("Restoring: ", name);
+
     TrashInfo tinfo = TrashInfo(info.readText());
-
-    log("Restoring: ", path);
-
     file.rename(tinfo.path);
-
     info.remove();
 
     return 0;
