@@ -1,0 +1,14 @@
+root = true
+
+[*]
+end_of_line = lf
+insert_final_newline = true]
+charset = utf-8
+
+[*.d]
+indent_style = space
+indent_size = 4
+dfmt_brace_style = otbs
+
+[Makefile]
+indent_style = tab

@@ -1,6 +1,13 @@
+# OS and Editor files
+.directory
+*.swp
+.vscode
+
 # Compiled Object files
 *.o
 *.obj
+/trash
+/debug
 
 # Compiled Dynamic libraries
 *.so
