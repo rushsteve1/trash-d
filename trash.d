@@ -40,7 +40,7 @@ import std.string;
 import std.conv : to;
 
 // trash-d is versioned sequentially starting at 1
-const int VER = 1;
+const int VER = 2;
 
 struct Opts {
     bool recursive;

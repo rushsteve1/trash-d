@@ -12,14 +12,12 @@ You can install a pre-built version from the
 
 ## Building
 
-`trash-d` can be built using any D compiler, but it uses GDC by default.
+`trash-d` can be built using any D compiler, but it uses Dub and DMD by default.
 You may need to adapt the build scripts, but the code should be completely
 portable.
 
-- It can be built with the [Makefile](./Makefile) using `make trash`.
-- To build with debug symbols and less optimization use `make debug`.
-- If you want the built executable stripped to save space use `make strip`.
-- Install to `/usr/bin` (or an overridden `DESTDIR`) with `make install`.
+You can build it with Dub using `dub build`.
+Or with GDC using `gdc trash.d -o trash`.
 
 ## Contributing
 

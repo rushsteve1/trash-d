@@ -6,8 +6,7 @@
 # Compiled Object files
 *.o
 *.obj
-/trash
-/debug
+/trash*
 
 # Compiled Dynamic libraries
 *.so

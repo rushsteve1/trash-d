@@ -14,13 +14,15 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - uses: dlang-community/setup-dlang@v1
+      with:
+        compiler: dmd-latest
 
-    - name: Install GDC
-      run: sudo apt install gdc
-
-    - name: Build and TAR
-      run: make strip
-
+    - name: Build & Test
+      run: |
+        dub build --build=release --compiler=$DC
+        dub test --compiler=$DC
+        strip trash
+        
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v2
       with:
