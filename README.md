@@ -7,6 +7,9 @@ Should work on any POSIX system with a D compiler.
 
 **DOES NOT WORK ON WINDOWS** and there are no plans for support.
 
+You can install a pre-built version from the
+[GitHub releases page](https://github.com/rushsteve1/trash-d/releases)
+
 ## Building
 
 `trash-d` can be built using any D compiler, and uses GDC by default.
