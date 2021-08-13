@@ -260,7 +260,7 @@ int trash(string path) {
 
 void empty() {
     bool res = prompt("empty the trash bin");
-    if (res) {
+    if (res || OPTS.force) {
         try {
             log("Deleting folder: ", OPTS.files_dir);
             OPTS.files_dir.rmdirRecurse();
@@ -303,6 +303,13 @@ void list() {
 }
 
 int del(string name) {
+    if (OPTS.interactive) {
+        bool res = prompt(format("delete the file '%s'", name));
+        if (!res) {
+            return 0;
+        }
+    }
+
     string file = OPTS.files_dir ~ "/" ~ name;
     string info = OPTS.info_dir ~ "/" ~ name ~ ".trashinfo";
 
@@ -320,6 +327,13 @@ int del(string name) {
 }
 
 int restore(string name) {
+    if (OPTS.interactive) {
+        bool res = prompt(format("restore the file '%s'", name));
+        if (!res) {
+            return 0;
+        }
+    }
+
     string file = OPTS.files_dir ~ "/" ~ name;
     string info = OPTS.info_dir ~ "/" ~ name ~ ".trashinfo";
 
