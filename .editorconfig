@@ -9,6 +9,7 @@ indent_size = 4
 
 [*.d]
 dfmt_brace_style = otbs
+dfmt_align_switch_statements = false
 
 [Makefile]
 indent_style = tab

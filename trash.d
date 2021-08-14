@@ -28,6 +28,12 @@
   SOFTWARE.
 */
 
+/*
+  See Also:
+  - https://dlang.org/
+  - https://specifications.freedesktop.org/trash-spec/trashspec-latest.html
+*/
+
 import std.getopt;
 import std.process : environment;
 import std.stdio;
@@ -35,11 +41,10 @@ import std.file;
 import std.path;
 import std.random;
 import std.format;
-import std.datetime.systime;
+import std.datetime.systime : Clock, SysTime;
 import std.string;
-import std.conv : to;
 import core.memory;
-import core.stdc.errno : EXDEV;
+import core.stdc.errno : ENOENT, EXDEV;
 
 /*
   ===============================================================================
@@ -48,44 +53,83 @@ import core.stdc.errno : EXDEV;
 */
 
 /// trash-d is versioned sequentially starting at 1
-const int VER = 5;
+const int VER = 6;
 
+/**
+   The parsed command line options are stored in this struct
+*/
 struct Opts {
+    /// The program's name, `args[0]`. Not a CLI option
     string prog_name = "trash";
-    bool recursive;
-    bool verbose;
-    bool interactive;
-    bool force;
-    bool list;
-    bool empty;
-    bool rm;
-    string restore;
-    string del;
+
+    /// The directory to use for trash. Not a CLI option
     string trash_dir;
+
+    // ===== Options from rm =====
+    /// Should empty directories be deleted
+    bool dir;
+    /// Should folder contents should be deleted
+    bool recursive;
+    /// Print additional logging
+    bool verbose;
+    /// Ask before doing things
+    bool interactive;
+    /// Should things be forced
+    bool force;
+    /// Print the version
     bool ver;
 
+    // ===== Custom Options ====
+    /// List out the files in the trash bin
+    bool list;
+    /// Empty the trash bin
+    bool empty;
+    /// Actually delete instead of moving to trash
+    bool rm;
+    /// Restore the given file
+    string restore;
+    /// Delete the given file from the trash
+    string del;
+
+    /// The path to the info directory
     @property string info_dir() const {
         return trash_dir ~ "/info";
     }
 
+    /// The path to the files directory
     @property string files_dir() const {
         return trash_dir ~ "/files";
     }
 
+    /// The path to the directorysizes file
     @property string dirsize_file() const {
         return trash_dir ~ "/directorysizes";
     }
 }
 
-// The parsed CLI options are stored here on a global struct
+/// The parsed CLI options are stored here on a global `Opts` struct
 static Opts OPTS;
 
+/**
+   This struct wraps data about a single file in the trash (or that is being
+   moved to the trash).
+   It provides facilities for getting related info about a file and for
+   generating and parsing its `.trashinfo` file
+*/
 struct TrashFile {
+    /// Format string used to parse and format the `.trashinfo` files
     const string info_fstr = "[Trash Info]\nPath=%s\nDeletionDate=%s";
+    /// The base name of this file
     string file_name;
+    /// The absolute original path of this file
     string orig_path;
+    /// The date and time this file was deleted
     SysTime deletion_date;
 
+    /**
+       When given one string the constructor assumes that this is a file that is
+       already in the trash. It will then parse the matching `.trashinfo` file.
+    */
     this(in string n) {
         file_name = n;
 
@@ -94,6 +138,10 @@ struct TrashFile {
         }
     }
 
+    /**
+       When given a string and a `SysTime` the constructor assumes that this is
+       a file that is about to be added to the trash bin.
+    */
     this(in string p, in SysTime now) {
         orig_path = p.absolutePath();
         file_name = orig_path.baseName().chompPrefix(".");
@@ -101,20 +149,29 @@ struct TrashFile {
         // If a file with the same name exists in the trash,
         // generate a random 4-digit numeric suffix
         if (file_path.exists()) {
-            file_name = file_name ~ "-" ~ to!string(uniform(1000, 9999));
+            file_name = format("%s-%s", file_name, uniform(1000, 9999));
         }
 
         deletion_date = now;
     }
 
+    // A `TrashFile` MUST always have a `file_name` and an `orig_path`
+    invariant {
+        assert(file_name);
+        assert(orig_path);
+    }
+
+    /// Path to the file in the trash bin
     @property string file_path() const {
         return OPTS.files_dir ~ "/" ~ file_name;
     }
 
+    /// Path to the matching `.trashinfo` file
     @property string info_path() const {
         return OPTS.info_dir ~ "/" ~ file_name ~ ".trashinfo";
     }
 
+    /// Parses the related `.trashinfo` file, pulling the info from it
     void parseInfo() {
         log("parsing trashinfo: %s", info_path);
         string text = info_path.readText();
@@ -123,12 +180,13 @@ struct TrashFile {
         deletion_date = SysTime.fromISOExtString(d);
     }
 
+    /// Formats a `.trashinfo` for this file
     @property string infoString() const {
         return format(info_fstr, orig_path, deletion_date.toISOExtString());
     }
 
     string toString() const {
-        return format("%s\t%s\t%s", file_name, orig_path, deletion_date.toSimpleString());
+        return format("%s\t%s\t%s", file_name, orig_path, deletion_date.toISOExtString());
     }
 }
 
@@ -138,11 +196,17 @@ struct TrashFile {
   ===============================================================================
 */
 
-pragma(inline)
-void err(Char, A...)(in Char[] fmt, A args) {
+/**
+   Prints a formatted error message to stderr with the program name at the
+   beginning
+*/
+pragma(inline) void err(Char, A...)(in Char[] fmt, A args) {
     stderr.writefln("%s: " ~ fmt, OPTS.prog_name, args);
 }
 
+/**
+   Same as `err()` but only prints if `OPTS.verbose` is true
+*/
 pragma(inline):
 void log(Char, A...)(in Char[] fmt, A args) {
     if (OPTS.verbose) {
@@ -150,12 +214,19 @@ void log(Char, A...)(in Char[] fmt, A args) {
     }
 }
 
+/**
+   Prompts the user for a yes or no input, defaulting to no.
+*/
 bool prompt(Char, A...)(in Char[] fmt, A args) {
     writef("Are you sure you want to %s? [y/N] ", format(fmt, args));
     string input = stdin.readln().strip().toLower();
-    return input == "y";
+    return input == "y" || input == "yes";
 }
 
+/**
+   Same as `prompt()` but only prompts if `OPTS.interactive` is true and
+   `OPTS.force` is false
+*/
 bool iprompt(Char, A...)(in Char[] fmt, A args) {
     if (OPTS.interactive && !OPTS.force) {
         const bool res = prompt(fmt, args);
@@ -166,6 +237,9 @@ bool iprompt(Char, A...)(in Char[] fmt, A args) {
     return true;
 }
 
+/**
+   Creates the trash directory folders if they are missing
+*/
 void createMissingFolders() {
     if (!exists(OPTS.trash_dir)) {
         mkdir(OPTS.trash_dir);
@@ -181,15 +255,41 @@ void createMissingFolders() {
     }
 }
 
+/**
+   Attempts to rename a file `src` to `tgt`, but if that fails with `EXDEV` then
+   the `src` and `tgt` paths are on different devices and cannot be renamed
+   across. In that case perform a copy then remove
+*/
 void renameOrCopy(in string src, in string tgt) {
     try {
         src.rename(tgt);
     } catch (FileException e) {
-        if (e.errno != EXDEV) throw e;
+        if (e.errno != EXDEV)
+            throw e;
 
         src.copy(tgt);
         src.remove();
     }
+}
+
+/**
+   Is it OK to delete this folder (if it is one). This looks at `OPTS.recusive`
+   and `OPTS.dir` and the status and contents of `path` to determine if the user
+   wants the action to be allowable.
+*/
+bool dirOk(in string path) {
+    if (!OPTS.recursive && path.isDir()) {
+        if (OPTS.dir) {
+            if (!path.dirEntries(SpanMode.shallow).empty) {
+                err("cannot remove '%s': Directory not empty", path);
+                return false;
+            }
+        } else {
+            err("cannot remove '%s': Is a directory", path);
+            return false;
+        }
+    }
+    return false;
 }
 
 /*
@@ -198,11 +298,12 @@ void renameOrCopy(in string src, in string tgt) {
   ===============================================================================
 */
 
-int trash(string path) {
-    if (!OPTS.recursive && path.isDir()) {
-        err("cannot remove '%s': Is a directory", path);
+/**
+   Sends the file/folder at the given path to the trash
+*/
+int trash(in string path) {
+    if (!path.dirOk())
         return 1;
-    }
 
     if (!iprompt("move %s' to the trash bin", path))
         return 0;
@@ -226,11 +327,13 @@ int trash(string path) {
     return 0;
 }
 
+/**
+   An escape hatch under the `--rm` flag to completely delete files instead of
+   moving them to the trash.
+*/
 int rm(string path) {
-    if (!OPTS.recursive && path.isDir()) {
-        err("cannot remove '%s': Is a directory", path);
+    if (!path.dirOk())
         return 1;
-    }
 
     if (!iprompt("move %s' to the trash bin", path))
         return 0;
@@ -244,12 +347,21 @@ int rm(string path) {
     return 0;
 }
 
+/**
+   Given the `--empty` flag this deletes the trash folders.
+   Always prompts the user first unless `--force` is given
+*/
 void empty() {
     if (prompt("empty the trash bin") || OPTS.force) {
+        // Each of these can fail in turn if the folder doesn't exist,
+        // like if you just called `--empty`. So that case, and only that case
+        // as checked by ENOENT, should be handled
         try {
             log("deleting folder: %s", OPTS.files_dir);
             OPTS.files_dir.rmdirRecurse();
         } catch (FileException e) {
+            if (e.errno != ENOENT)
+                throw e;
             log("folder did not exist, ignoring");
         }
 
@@ -257,6 +369,8 @@ void empty() {
             log("deleting folder: %s", OPTS.info_dir);
             OPTS.info_dir.rmdirRecurse();
         } catch (FileException e) {
+            if (e.errno != ENOENT)
+                throw e;
             log("folder did not exist, ignoring");
         }
 
@@ -264,16 +378,27 @@ void empty() {
             log("deleting file: %s", OPTS.dirsize_file);
             OPTS.dirsize_file.remove();
         } catch (FileException e) {
+            if (e.errno != ENOENT)
+                throw e;
             log("folder did not exist, ignoring");
         }
 
+        // Always print out that the trash emptied
         writeln("Trash emptied");
     }
 }
 
+/**
+   Prints out a files in the trash with their name, original path, and deletion
+   date as a tab-separated table
+*/
 void list() {
+    // The Freedesktop spec specifies that the files in the info folder, not the
+    // files, folder defines what's in the trash bin.
+    // This can lead to some odd cases, but `--empty` should handle them.
     auto entries = OPTS.info_dir.dirEntries(SpanMode.shallow);
 
+    // If the trash is empty then say so
     if (entries.empty) {
         writeln("Trash bin is empty");
         return;
@@ -282,11 +407,17 @@ void list() {
     foreach (DirEntry entry; entries) {
         writeln(TrashFile(entry.name.baseName().stripExtension()));
     }
-
 }
 
-int del(string name) {
-    if (!iprompt("delete the file '%s'", name)) return 0;
+// TODO del and restore are VERY similar so maybe merge them somehow?
+// Maybe by passing in a function?
+
+/**
+   Deletes a single file from the trash bin.
+*/
+int del(in string name) {
+    if (!iprompt("delete the file '%s'", name))
+        return 0;
 
     const auto tfile = TrashFile(name);
 
@@ -295,17 +426,25 @@ int del(string name) {
         return 1;
     }
 
+    if (!exists(tfile.info_path)) {
+        err("cannot restore '%s': No trashinfo file", name);
+        return 1;
+    }
+
     log("deleting: %s", name);
 
     tfile.file_path.remove();
-    if (tfile.info_path.exists())
-        tfile.info_path.remove();
+    tfile.info_path.remove();
 
     return 0;
 }
 
-int restore(string name) {
-    if (! iprompt("restore the file '%s'", name)) return 0;
+/**
+   Restore a file from the trash bin to its original path
+*/
+int restore(in string name) {
+    if (!iprompt("restore the file '%s'", name))
+        return 0;
 
     const auto tfile = TrashFile(name);
 
@@ -333,6 +472,9 @@ int restore(string name) {
   ===============================================================================
 */
 
+/**
+   Parses the command line options into the `OPTS` global struct using D's built-in `getopt` parser
+*/
 int parseOpts(ref string[] args) {
     // Hang on the the unparsed argument length
     const ulong arglen = args.length;
@@ -340,22 +482,27 @@ int parseOpts(ref string[] args) {
     // Parse CLI options using D's getopt
     GetoptResult helpInfo;
     try {
-        helpInfo = getopt(args,// Allow flags to be bundled like -rf
-                std.getopt.config.bundling,// Pass through flags that weren't understood
+        // dfmt off
+        helpInfo = getopt(args,
+                // Allow flags to be bundled like -rf
+                std.getopt.config.bundling,
+                // Pass through flags that weren't understood
                 // These will get ignored later, but it adds graceful rm compatibility
                 std.getopt.config.passThrough,
-                // The // at the end of each line keeps dfmt from merging lines
-                "recursive|r", "Delete directories and their contents", &OPTS.recursive, //
-                "verbose|v", "Print more information", &OPTS.verbose, //
-                "interactive|i", "Ask before each deletion", &OPTS.interactive, //
-                "force|f", "Ignore non-existant and don't prompt", &OPTS.force, //
-                "empty", "Empty the trash bin", &OPTS.empty, //
-                "delete", "Delete a file from the trash", &OPTS.del, //
-                "list", "List out the files in the trash", &OPTS.list, //
-                "restore", "Restore a file from the trash", &OPTS.restore, //
-                "rm", "Escape hatch to permanently delete a file", &OPTS.rm, //
-                "version", "Output the version and exit", &OPTS.ver, //
-                );
+                "dir|d", "Remove empty directories", &OPTS.dir,
+                "recursive|r", "Delete directories and their contents", &OPTS.recursive,
+                "verbose|v", "Print more information", &OPTS.verbose,
+                "interactive|i", "Ask before each deletion", &OPTS.interactive,
+                "force|f", "Ignore non-existant and don't prompt", &OPTS.force,
+                "version", "Output the version and exit", &OPTS.ver,
+
+                "empty", "Empty the trash bin", &OPTS.empty,
+                "delete", "Delete a file from the trash", &OPTS.del,
+                "list", "List out the files in the trash", &OPTS.list,
+                "restore", "Restore a file from the trash", &OPTS.restore,
+                "rm", "Escape hatch to permanently delete a file", &OPTS.rm,
+        );
+        // dfmt on
     } catch (GetOptException e) {
         err(e.message());
     }
@@ -373,7 +520,13 @@ int parseOpts(ref string[] args) {
     // Print the version number and return
     // This is here so that the program quits out on --version quickly
     if (OPTS.ver) {
-        writeln(VER);
+        writefln("trash-d version %s
+Copyright (C) 2021 Steven vanZyl.
+Fork on GitHub <https://github.com/rushsteve1/trash-d>
+License MIT <https://mit-license.org/>.
+There is NO WARRANTY, to the extent permitted by law.
+
+Written by Steven vanZyl <rushsteve1@rushsteve1.us>.", VER);
         return -1;
     }
 
@@ -398,6 +551,11 @@ int parseOpts(ref string[] args) {
   ===============================================================================
 */
 
+/**
+   Given the remaining string arguments and the global `OPTS` struct, runs the
+   given commands. In other words, this function wraps around all the real
+   operations and acts as a secondary entrypoint that `main()` can `try`.
+*/
 int runCommands(string[] args) {
     // Handle emptying the trash
     if (OPTS.empty) {
@@ -450,7 +608,8 @@ int runCommands(string[] args) {
             } else {
                 res = trash(path);
             }
-            if (res > 0) return res;
+            if (res > 0)
+                return res;
         } else if (!OPTS.force) {
             err("cannot remove '%s': No such file or directory", path);
             return 1;
@@ -467,6 +626,10 @@ int runCommands(string[] args) {
   ===============================================================================
 */
 
+/**
+   The venerable entrypoint function. Does some setup, calls `parseOpts()`, then
+   calls `runCommands` and handles any errors.
+*/
 int main(string[] args) {
     // Due to the short-lived CLI nature of this program,
     // I have opted to disable the garbage collector.
@@ -477,9 +640,12 @@ int main(string[] args) {
     // Parse the command line options
     const int res = parseOpts(args);
     switch (res) {
-        case 0: break;
-        case -1: return 0;
-        default: return res;
+        case 0:
+            break;
+        case -1:
+            return 0;
+        default:
+            return res;
     }
 
     // Everything is wrapped in a single outermost try/catch block

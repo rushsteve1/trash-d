@@ -1,14 +1,23 @@
 # trash-d
-A near drop-in replacement for rm that uses the
+
+A near drop-in replacement for `rm` that uses the
 [Freedesktop trash bin](https://specifications.freedesktop.org/trash-spec/trashspec-latest.html).
 Written in the [D programming language](https://dlang.org/).
 
-Should work on any POSIX system with a D compiler.
-
 **DOES NOT WORK ON WINDOWS** and there are no plans for support.
+Should work on any POSIX system with a D compiler.
 
 You can install a pre-built version from the
 [GitHub releases page](https://github.com/rushsteve1/trash-d/releases)
+
+## `rm` compatibility
+
+One of `trash-d`'s primary goals is near compatibility with the standard `rm`
+tool.The keyword here is "near". The goal is not exact flag-for-flag
+compatibility with `rm`, but you should be able to `alias rm=trash` and not
+notice the difference.
+
+Because of this, `trash-d` will silently ignore unknown options.
 
 ## Building
 
@@ -25,15 +34,9 @@ Contributions welcome! Please come help me clean up my D code, and otherwise
 make `trash-d` more useful!
 
 However keep in mind that this is a simple tool with a simple job, so it's never
-going to do *too* much.
+going to do *that* much.
 
 ## License
 
 `trash-d` is licensed under the terms of the [MIT License](./LICENSE).
 You are free to use it for any purpose under the terms of that license.
-
-## Known Limitations
-
-- You can't trash a file across a filesystem border. This can lead to issues
-  when trashing from `tmpfs` or removable drives.
-  Contributions towards fixing this are welcome!
