@@ -43,6 +43,7 @@ import std.random;
 import std.format;
 import std.datetime.systime : Clock, SysTime;
 import std.string;
+import std.outbuffer : OutBuffer;
 import core.memory;
 import core.stdc.errno : ENOENT, EXDEV;
 
@@ -53,7 +54,17 @@ import core.stdc.errno : ENOENT, EXDEV;
 */
 
 /// trash-d is versioned sequentially starting at 1
-const int VER = 6;
+const int VER = 7;
+const string VER_NAME = "Providence";
+const string VER_TEXT = format("trash-d version %s '%s'", VER, VER_NAME);
+const string COPY_TEXT = "Copyright (C) 2021 Steven vanZyl.
+License MIT <https://mit-license.org/>.
+Fork on GitHub <https://github.com/rushsteve1/trash-d>
+
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+
+Written by Steven vanZyl <rushsteve1@rushsteve1.us>.";
 
 /**
    The parsed command line options are stored in this struct
@@ -153,12 +164,6 @@ struct TrashFile {
         }
 
         deletion_date = now;
-    }
-
-    // A `TrashFile` MUST always have a `file_name` and an `orig_path`
-    invariant {
-        assert(file_name);
-        assert(orig_path);
     }
 
     /// Path to the file in the trash bin
@@ -489,18 +494,18 @@ int parseOpts(ref string[] args) {
                 // Pass through flags that weren't understood
                 // These will get ignored later, but it adds graceful rm compatibility
                 std.getopt.config.passThrough,
-                "dir|d", "Remove empty directories", &OPTS.dir,
-                "recursive|r", "Delete directories and their contents", &OPTS.recursive,
-                "verbose|v", "Print more information", &OPTS.verbose,
-                "interactive|i", "Ask before each deletion", &OPTS.interactive,
-                "force|f", "Ignore non-existant and don't prompt", &OPTS.force,
-                "version", "Output the version and exit", &OPTS.ver,
+                "dir|d", "Remove empty directories.", &OPTS.dir,
+                "recursive|r", "Delete directories and their contents.", &OPTS.recursive,
+                "verbose|v", "Print more information.", &OPTS.verbose,
+                "interactive|i", "Ask before each deletion.", &OPTS.interactive,
+                "force|f", "Ignore non-existant and don't prompt.", &OPTS.force,
+                "version", "Output the version and exit.", &OPTS.ver,
 
-                "empty", "Empty the trash bin", &OPTS.empty,
-                "delete", "Delete a file from the trash", &OPTS.del,
-                "list", "List out the files in the trash", &OPTS.list,
-                "restore", "Restore a file from the trash", &OPTS.restore,
-                "rm", "Escape hatch to permanently delete a file", &OPTS.rm,
+                "empty", "Empty the trash bin.", &OPTS.empty,
+                "delete", "Delete a file from the trash.", &OPTS.del,
+                "list", "List out the files in the trash.", &OPTS.list,
+                "restore", "Restore a file from the trash.", &OPTS.restore,
+                "rm", "Escape hatch to permanently delete a file.", &OPTS.rm,
         );
         // dfmt on
     } catch (GetOptException e) {
@@ -510,8 +515,11 @@ int parseOpts(ref string[] args) {
     // Handle requests for help text
     // This includes when no arguments are given
     if (helpInfo.helpWanted || arglen < 2) {
-        defaultGetoptPrinter("trash [OPTION]... [FILE]...\nA near drop-in replacement for rm that uses the trash bin",
-                helpInfo.options);
+        string text = "Usage: \033[1mtrash [OPTIONS...] [FILES...]\033[0m\n";
+        OutBuffer buf = new OutBuffer();
+        defaultGetoptFormatter(buf, text, helpInfo.options, "\t%*s  %*s\t%*s%s\x0a");
+        writefln("%s\n\n%s\n%s", VER_TEXT, buf, COPY_TEXT);
+
         if (arglen < 2)
             return 1;
         return -1;
@@ -520,13 +528,7 @@ int parseOpts(ref string[] args) {
     // Print the version number and return
     // This is here so that the program quits out on --version quickly
     if (OPTS.ver) {
-        writefln("trash-d version %s
-Copyright (C) 2021 Steven vanZyl.
-Fork on GitHub <https://github.com/rushsteve1/trash-d>
-License MIT <https://mit-license.org/>.
-There is NO WARRANTY, to the extent permitted by law.
-
-Written by Steven vanZyl <rushsteve1@rushsteve1.us>.", VER);
+        writefln("\033[1m%s\033[0m\n\n%s", VER_TEXT, COPY_TEXT);
         return -1;
     }
 
