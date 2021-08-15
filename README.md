@@ -10,6 +10,11 @@ Should work on any POSIX system with a D compiler.
 You can install a pre-built version from the
 [GitHub releases page](https://github.com/rushsteve1/trash-d/releases)
 
+I gave a brief informal talk about this project and D at
+[DoomConf 2021](https://doomconf.netlify.app/)
+which also serves as documentation
+[slides here here](https://doomconf.netlify.app/rushsteve1/trash-d)
+
 ## `rm` compatibility
 
 One of `trash-d`'s primary goals is near compatibility with the standard `rm`
