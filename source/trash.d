@@ -44,8 +44,7 @@ import std.format;
 import std.datetime.systime : Clock, SysTime;
 import std.string;
 import std.outbuffer : OutBuffer;
-import core.memory;
-import core.stdc.errno : ENOENT, EXDEV;
+import core.stdc.errno : EXDEV;
 
 /*
   ===============================================================================
@@ -54,8 +53,8 @@ import core.stdc.errno : ENOENT, EXDEV;
 */
 
 /// trash-d is versioned sequentially starting at 1
-const int VER = 7;
-const string VER_NAME = "Providence";
+const int VER = 8;
+const string VER_NAME = "Jetstream Sam";
 const string VER_TEXT = format("trash-d version %s '%s'", VER, VER_NAME);
 const string COPY_TEXT = "Copyright (C) 2021 Steven vanZyl.
 License MIT <https://mit-license.org/>.
@@ -215,7 +214,17 @@ pragma(inline) void err(Char, A...)(in Char[] fmt, A args) {
 pragma(inline):
 void log(Char, A...)(in Char[] fmt, A args) {
     if (OPTS.verbose) {
+        err("log: " ~ fmt, args);
+    }
+}
+
+pragma(inline) int ferr(Char, A...)(in Char[] fmt, A args) {
+    if (OPTS.force) {
+        log(fmt, args);
+        return 0;
+    } else {
         err(fmt, args);
+        return 1;
     }
 }
 
@@ -258,6 +267,10 @@ void createMissingFolders() {
         mkdir(OPTS.files_dir);
         log("creating trash file directory");
     }
+    if (!exists(OPTS.dirsize_file)) {
+        std.file.write(OPTS.dirsize_file, "");
+        log("creating directorysizes file");
+    }
 }
 
 /**
@@ -294,7 +307,7 @@ bool dirOk(in string path) {
             return false;
         }
     }
-    return false;
+    return true;
 }
 
 /*
@@ -307,6 +320,10 @@ bool dirOk(in string path) {
    Sends the file/folder at the given path to the trash
 */
 int trash(in string path) {
+    if (!exists(path)) {
+        return ferr("cannot delete '%s': No such file or directory", path);
+    }
+
     if (!path.dirOk())
         return 1;
 
@@ -357,39 +374,19 @@ int rm(string path) {
    Always prompts the user first unless `--force` is given
 */
 void empty() {
-    if (prompt("empty the trash bin") || OPTS.force) {
-        // Each of these can fail in turn if the folder doesn't exist,
-        // like if you just called `--empty`. So that case, and only that case
-        // as checked by ENOENT, should be handled
-        try {
-            log("deleting folder: %s", OPTS.files_dir);
-            OPTS.files_dir.rmdirRecurse();
-        } catch (FileException e) {
-            if (e.errno != ENOENT)
-                throw e;
-            log("folder did not exist, ignoring");
-        }
+    // Only prompt the user if the --force flag wasn't given
+    if (OPTS.force || prompt("empty the trash bin")) {
+        log("deleting folder: %s", OPTS.files_dir);
+        OPTS.files_dir.rmdirRecurse();
 
-        try {
-            log("deleting folder: %s", OPTS.info_dir);
-            OPTS.info_dir.rmdirRecurse();
-        } catch (FileException e) {
-            if (e.errno != ENOENT)
-                throw e;
-            log("folder did not exist, ignoring");
-        }
+        log("deleting folder: %s", OPTS.info_dir);
+        OPTS.info_dir.rmdirRecurse();
 
-        try {
-            log("deleting file: %s", OPTS.dirsize_file);
-            OPTS.dirsize_file.remove();
-        } catch (FileException e) {
-            if (e.errno != ENOENT)
-                throw e;
-            log("folder did not exist, ignoring");
-        }
+        log("deleting file: %s", OPTS.dirsize_file);
+        OPTS.dirsize_file.remove();
 
-        // Always print out that the trash emptied
-        writeln("Trash emptied");
+        // Always print out that the trash bin was emptied
+        writeln("Trash bin emptied");
     }
 }
 
@@ -427,13 +424,11 @@ int del(in string name) {
     const auto tfile = TrashFile(name);
 
     if (!exists(tfile.file_path)) {
-        err("cannot delete '%s': No such file or directory", name);
-        return 1;
+        return ferr("cannot delete '%s': No such file or directory", name);
     }
 
     if (!exists(tfile.info_path)) {
-        err("cannot restore '%s': No trashinfo file", name);
-        return 1;
+        return ferr("cannot delete '%s': No trashinfo file", name);
     }
 
     log("deleting: %s", name);
@@ -454,16 +449,21 @@ int restore(in string name) {
     const auto tfile = TrashFile(name);
 
     if (!exists(tfile.file_path)) {
-        err("cannot restore '%s': No such file or directory", name);
-        return 1;
+        return ferr("cannot delete '%s': No such file or directory", name);
     }
 
     if (!exists(tfile.info_path)) {
-        err("cannot restore '%s': No trashinfo file", name);
-        return 1;
+        return ferr("cannot delete '%s': No trashinfo file", name);
     }
 
     log("restoring: %s", name);
+
+    // Make sure to warn the user when restoring over another file
+    if (tfile.orig_path.exists() && !OPTS.force) {
+        if (!prompt("you want to overwrite the existing file at %s?", tfile.orig_path)) {
+            return 0;
+        }
+    }
 
     tfile.file_path.renameOrCopy(tfile.orig_path);
     tfile.info_path.remove();
@@ -484,6 +484,12 @@ int parseOpts(ref string[] args) {
     // Hang on the the unparsed argument length
     const ulong arglen = args.length;
 
+    // Always reset the global options at each call
+    // This is mostly useful for testing
+    // TODO this is funky, clean it up a bit
+    Opts o;
+    OPTS = o;
+
     // Parse CLI options using D's getopt
     GetoptResult helpInfo;
     try {
@@ -498,7 +504,7 @@ int parseOpts(ref string[] args) {
                 "recursive|r", "Delete directories and their contents.", &OPTS.recursive,
                 "verbose|v", "Print more information.", &OPTS.verbose,
                 "interactive|i", "Ask before each deletion.", &OPTS.interactive,
-                "force|f", "Ignore non-existant and don't prompt.", &OPTS.force,
+                "force|f", "Don't prompt and ignore errors.", &OPTS.force,
                 "version", "Output the version and exit.", &OPTS.ver,
 
                 "empty", "Empty the trash bin.", &OPTS.empty,
@@ -559,14 +565,14 @@ int parseOpts(ref string[] args) {
    operations and acts as a secondary entrypoint that `main()` can `try`.
 */
 int runCommands(string[] args) {
+    // Create missing folders if needed
+    createMissingFolders();
+
     // Handle emptying the trash
     if (OPTS.empty) {
         empty();
         return 0;
     }
-
-    // Create missing folders if needed
-    createMissingFolders();
 
     // Handle listing files in trash bin
     if (OPTS.list) {
@@ -601,61 +607,17 @@ int runCommands(string[] args) {
         }
 
         // If the path exists, delete trash the file
-        if (path.exists()) {
-
-            // Handle the force --rm flag
-            int res;
-            if (OPTS.rm) {
-                res = rm(path);
-            } else {
-                res = trash(path);
-            }
-            if (res > 0)
-                return res;
-        } else if (!OPTS.force) {
-            err("cannot remove '%s': No such file or directory", path);
-            return 1;
+        // Handle the force --rm flag
+        int res;
+        if (OPTS.rm) {
+            res = rm(path);
+        } else {
+            res = trash(path);
         }
+        if (res > 0)
+            return res;
     }
 
     // Hooray, we made it all the way to the end!
     return 0;
-}
-
-/*
-  ===============================================================================
-                                Main Entrypoint
-  ===============================================================================
-*/
-
-/**
-   The venerable entrypoint function. Does some setup, calls `parseOpts()`, then
-   calls `runCommands` and handles any errors.
-*/
-int main(string[] args) {
-    // Due to the short-lived CLI nature of this program,
-    // I have opted to disable the garbage collector.
-    // This should squeeze out a bit of performance,
-    // while ultimately not affecting memory usage very much
-    GC.disable();
-
-    // Parse the command line options
-    const int res = parseOpts(args);
-    switch (res) {
-        case 0:
-            break;
-        case -1:
-            return 0;
-        default:
-            return res;
-    }
-
-    // Everything is wrapped in a single outermost try/catch block
-    // to make error handling much simpler.
-    try {
-        return runCommands(args);
-    } catch (FileException e) {
-        err(e.message());
-        return 1;
-    }
 }

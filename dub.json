@@ -7,6 +7,5 @@
     "homepage": "https://github.com/rushsteve1/trash-d",
     "targetName": "trash",
     "targetType": "executable",
-    "mainSourceFile": "trash.d",
     "dflags-ldc": ["-static"]
 }

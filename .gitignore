@@ -28,3 +28,8 @@ docs/
 
 # Code coverage
 *.lst
+
+# Test files
+test.file
+test-dir/
+test-trash/
