@@ -44,7 +44,10 @@ import std.format;
 import std.datetime.systime : Clock, SysTime;
 import std.string;
 import std.outbuffer : OutBuffer;
+import std.algorithm : map, maxElement;
+import std.range : array, chain;
 import core.stdc.errno : EXDEV;
+import core.time : hnsecs;
 
 /*
   ===============================================================================
@@ -53,7 +56,7 @@ import core.stdc.errno : EXDEV;
 */
 
 /// trash-d is versioned sequentially starting at 1
-const int VER = 8;
+const int VER = 9;
 const string VER_NAME = "Jetstream Sam";
 const string VER_TEXT = format("trash-d version %s '%s'", VER, VER_NAME);
 const string COPY_TEXT = "Copyright (C) 2021 Steven vanZyl.
@@ -102,18 +105,18 @@ struct Opts {
     string del;
 
     /// The path to the info directory
-    @property string info_dir() const {
-        return trash_dir ~ "/info";
+    @property @safe string info_dir() const nothrow {
+        return trash_dir.chainPath("info").array();
     }
 
     /// The path to the files directory
-    @property string files_dir() const {
-        return trash_dir ~ "/files";
+    @property @safe string files_dir() const nothrow {
+        return trash_dir.chainPath("files").array();
     }
 
     /// The path to the directorysizes file
-    @property string dirsize_file() const {
-        return trash_dir ~ "/directorysizes";
+    @property @safe string dirsize_file() const nothrow {
+        return trash_dir.chainPath("directorysizes").array();
     }
 }
 
@@ -166,13 +169,25 @@ struct TrashFile {
     }
 
     /// Path to the file in the trash bin
-    @property string file_path() const {
-        return OPTS.files_dir ~ "/" ~ file_name;
+    @property @safe string file_path() const nothrow {
+        return OPTS.files_dir.chainPath(file_name).array();
     }
 
     /// Path to the matching `.trashinfo` file
-    @property string info_path() const {
-        return OPTS.info_dir ~ "/" ~ file_name ~ ".trashinfo";
+    @property @safe dstring info_path() const {
+        return OPTS.info_dir.chainPath(file_name).chain(".trashinfo").array();
+    }
+
+    // TODO check for and report write protected files like RM does
+    @property @safe attr_orig() const {
+        assert(orig_path.exists());
+        return orig_path.getAttributes();
+    }
+
+    @property @safe bool writeable() const {
+        import core.sys.posix.sys.stat;
+
+        return cast(bool)(attr_orig & S_IWUSR);
     }
 
     /// Parses the related `.trashinfo` file, pulling the info from it
@@ -185,12 +200,8 @@ struct TrashFile {
     }
 
     /// Formats a `.trashinfo` for this file
-    @property string infoString() const {
+    @property @safe string infoString() const {
         return format(info_fstr, orig_path, deletion_date.toISOExtString());
-    }
-
-    string toString() const {
-        return format("%s\t%s\t%s", file_name, orig_path, deletion_date.toISOExtString());
     }
 }
 
@@ -317,9 +328,11 @@ bool dirOk(in string path) {
 */
 
 /**
-   Sends the file/folder at the given path to the trash
+   Depending on the value of OPTS.rm this either sends the file/folder at the
+   given path to the trash or permanently deletes it.
+   This was originally 2 functions but they were overly similar
 */
-int trash(in string path) {
+int trashOrRm(in string path) {
     if (!exists(path)) {
         return ferr("cannot delete '%s': No such file or directory", path);
     }
@@ -327,11 +340,30 @@ int trash(in string path) {
     if (!path.dirOk())
         return 1;
 
-    if (!iprompt("move %s' to the trash bin", path))
+    string fstr = (OPTS.rm) ? "move '%s' to the trash bin" : "permanently delete '%s'";
+    if (!iprompt(fstr, path))
         return 0;
 
-    const auto now = Clock.currTime();
+    // Get the current time without the fractional part
+    auto now = Clock.currTime();
+    now.fracSecs = hnsecs(0);
     const auto tfile = TrashFile(path, now);
+
+    // Check if the file is writeable and prompt the user the same way rm does
+    if (!tfile.writeable && !OPTS.force) {
+        writef("%s: remove write-protected regular file '%s'? ", OPTS.prog_name, path);
+        string input = stdin.readln().strip().toLower();
+        if (input != "y" && input != "yes")
+            return 0;
+    }
+
+    // If the --rm flag is given, act on that
+    // Otherwise continue on with the regular trashing
+    if (OPTS.rm) {
+        log("deleting: %s", path);
+        path.remove();
+        return 0;
+    }
 
     log("trashing: %s", tfile.orig_path);
 
@@ -345,26 +377,6 @@ int trash(in string path) {
         const ulong size = tfile.file_path.getSize();
         OPTS.dirsize_file.append(format("%s %s %s", size, now.toUnixTime(), tfile.file_name));
     }
-
-    return 0;
-}
-
-/**
-   An escape hatch under the `--rm` flag to completely delete files instead of
-   moving them to the trash.
-*/
-int rm(string path) {
-    if (!path.dirOk())
-        return 1;
-
-    if (!iprompt("move %s' to the trash bin", path))
-        return 0;
-
-    path = path.absolutePath();
-
-    log("deleting: %s", path);
-
-    path.remove();
 
     return 0;
 }
@@ -397,7 +409,7 @@ void empty() {
 void list() {
     // The Freedesktop spec specifies that the files in the info folder, not the
     // files, folder defines what's in the trash bin.
-    // This can lead to some odd cases, but `--empty` should handle them.
+    // This can lead to some odd cases, but --empty should handle them.
     auto entries = OPTS.info_dir.dirEntries(SpanMode.shallow);
 
     // If the trash is empty then say so
@@ -406,66 +418,62 @@ void list() {
         return;
     }
 
-    foreach (DirEntry entry; entries) {
-        writeln(TrashFile(entry.name.baseName().stripExtension()));
+    // Map the `DirEntry`s to `TrashFile`s
+    auto tf = entries.map!(e => TrashFile(e.name.baseName().stripExtension())).array();
+
+    // Calculate the maximum length of the name and path for formatting
+    ulong maxname = tf.map!(t => t.file_name.length).maxElement();
+    log("max name length: %s", maxname);
+
+    ulong maxpath = tf.map!(t => t.orig_path.length).maxElement();
+    log("max path length: %s", maxpath);
+
+    // Write out the list with a header
+    writefln("%-*s\t%-*s\t%s", maxname, "Name", maxpath, "Path", "Del. Date");
+    foreach (TrashFile t; tf) {
+        writefln("%-*s\t%-*s\t%s", maxname, t.file_name, maxpath, t.orig_path, t.deletion_date);
     }
 }
 
-// TODO del and restore are VERY similar so maybe merge them somehow?
-// Maybe by passing in a function?
-
 /**
-   Deletes a single file from the trash bin.
+   Depending on the value of the `del` paramater this function either deletes a
+   single file from the trash bin, or restores a file from the trash bin to its
+   original path.
+   This was originally 2 functions but they were overly similar
 */
-int del(in string name) {
-    if (!iprompt("delete the file '%s'", name))
+int restoreOrDel(in string name, bool del) {
+    // Make a string holding the name of the operation
+    string opstr = (del) ? "permanently delete" : "restore";
+
+    if (!iprompt("%s the file '%s'", opstr, name))
         return 0;
 
     const auto tfile = TrashFile(name);
 
     if (!exists(tfile.file_path)) {
-        return ferr("cannot delete '%s': No such file or directory", name);
+        return ferr("cannot %s '%s': No such file or directory", opstr, name);
     }
 
     if (!exists(tfile.info_path)) {
-        return ferr("cannot delete '%s': No trashinfo file", name);
+        return ferr("cannot %s '%s': No trashinfo file", opstr, name);
     }
 
-    log("deleting: %s", name);
-
-    tfile.file_path.remove();
-    tfile.info_path.remove();
-
-    return 0;
-}
-
-/**
-   Restore a file from the trash bin to its original path
-*/
-int restore(in string name) {
-    if (!iprompt("restore the file '%s'", name))
-        return 0;
-
-    const auto tfile = TrashFile(name);
-
-    if (!exists(tfile.file_path)) {
-        return ferr("cannot delete '%s': No such file or directory", name);
-    }
-
-    if (!exists(tfile.info_path)) {
-        return ferr("cannot delete '%s': No trashinfo file", name);
-    }
-
-    log("restoring: %s", name);
+    log("%s : %s", opstr.chop() ~ "ing", name);
 
     // Make sure to warn the user when restoring over another file
-    if (tfile.orig_path.exists() && !OPTS.force) {
+    if (!del && tfile.orig_path.exists() && !OPTS.force) {
         if (!prompt("you want to overwrite the existing file at %s?", tfile.orig_path)) {
             return 0;
         }
     }
 
-    tfile.file_path.renameOrCopy(tfile.orig_path);
+    // If del is on, delete otherwise restore
+    if (del) {
+        tfile.file_path.remove();
+    } else {
+        tfile.file_path.renameOrCopy(tfile.orig_path);
+    }
+    // Always remove the trashinfo file
     tfile.info_path.remove();
 
     return 0;
@@ -545,7 +553,7 @@ int parseOpts(ref string[] args) {
     }
 
     // Set the trash dir option
-    OPTS.trash_dir = absolutePath(data_home ~ "/Trash");
+    OPTS.trash_dir = data_home.chainPath("Trash").asAbsolutePath().array();
     log("trash directory: %s", OPTS.trash_dir);
 
     // This function is a little special because it has a unique return code
@@ -582,11 +590,11 @@ int runCommands(string[] args) {
 
     // Handle deleting a file
     if (OPTS.del)
-        return del(OPTS.del);
+        return restoreOrDel(OPTS.del, true);
 
     // Handle restoring trash files
     if (OPTS.restore)
-        return restore(OPTS.restore);
+        return restoreOrDel(OPTS.restore, false);
 
     // Remove the first argument, ie the program name
     // Then make sure at least 1 file was specified
@@ -609,11 +617,7 @@ int runCommands(string[] args) {
         // If the path exists, delete trash the file
         // Handle the force --rm flag
         int res;
-        if (OPTS.rm) {
-            res = rm(path);
-        } else {
-            res = trash(path);
-        }
+        res = trashOrRm(path);
         if (res > 0)
             return res;
     }

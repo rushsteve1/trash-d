@@ -31,7 +31,11 @@ import trash;
 import std.file;
 import std.path;
 import std.range;
+import std.string;
 import std.algorithm;
+import std.conv : octal;
+import std.datetime.systime : Clock;
+import core.sys.posix.sys.stat;
 
 const test_trash_dir = "test-trash";
 
@@ -99,7 +103,8 @@ unittest {
     scope (exit)
         testfile.remove();
     assert(testfile.exists());
-    auto tinfo = TrashFile(testfile);
+    auto tinfo = TrashFile(testfile, Clock.currTime());
+    assert(tinfo.writeable);
 
     // Trash the file
     assert(mini([testfile]) == 0);
@@ -107,7 +112,7 @@ unittest {
     assert(tinfo.file_path.exists());
     assert(tinfo.info_path.exists());
 
-    // List the trash and ensure nothing changed
+    // List the trash and everything is in the right place
     assert(mini(["--list"]) == 0);
     assert(!testfile.exists());
     assert(tinfo.file_path.exists());
@@ -134,7 +139,7 @@ unittest {
     scope (failure)
         testdir.rmdir();
     assert(testdir.exists());
-    auto tinfo = TrashFile(testdir);
+    auto tinfo = TrashFile(testdir, Clock.currTime());
 
     // Should not trash a directory without -d
     assert(mini([testdir]) == 1);
@@ -165,7 +170,7 @@ unittest {
     string testfile = "test.file";
     testfile.write("hello");
     assert(testfile.exists());
-    auto tinfo = TrashFile(testfile);
+    auto tinfo = TrashFile(testfile, Clock.currTime());
 
     // The file should be removed but NOT moved to the trash
     assert(mini(["--rm", testfile]) == 0);
@@ -187,7 +192,7 @@ unittest {
     scope (failure)
         testdir.rmdirRecurse();
     assert(testdir.exists());
-    auto tinfo = TrashFile(testdir);
+    auto tinfo = TrashFile(testdir, Clock.currTime());
 
     string testfile = testdir ~ "/test.file";
     testfile.write("hello");
@@ -232,7 +237,7 @@ unittest {
     // Write one file and trash it
     string testfile = "test.file";
     testfile.write("hello");
-    auto tinfo = TrashFile(testfile);
+    auto tinfo = TrashFile(testfile, Clock.currTime());
 
     // Yes this repeats the other test
     // Doesn't hurt to test the main purpose of the program twice
@@ -262,6 +267,61 @@ unittest {
 }
 
 /**
+   Trash from /tmp/
+   On most systems (including mine) this is a separate tempfs so this test is
+   for cross-filesystem trashing
+*/
+unittest {
+    string testfile = "/tmp/test.file";
+    testfile.write("hello");
+    scope (exit)
+        testfile.remove();
+    assert(testfile.exists());
+    auto tinfo = TrashFile(testfile, Clock.currTime());
+
+    // Trash the file
+    assert(mini([testfile]) == 0);
+
+    assert(!testfile.exists());
+    assert(tinfo.file_path.exists());
+    assert(tinfo.info_path.exists());
+
+    // Restore the file
+    assert(mini(["--restore", "test.file"]) == 0);
+    assert(testfile.exists());
+    assert(!tinfo.file_path.exists());
+    assert(!tinfo.info_path.exists());
+
+    // Cleanup
+    scope (success)
+        test_trash_dir.rmdirRecurse();
+}
+
+/**
+   Test trashing a file that does not have write permissions
+*/
+unittest {
+    string testfile = "test.file";
+    testfile.write("hello");
+    chmod(testfile.toStringz(), octal!444);
+    scope (failure)
+        testfile.remove();
+    assert(testfile.exists());
+    auto tinfo = TrashFile(testfile, Clock.currTime());
+    assert(!tinfo.writeable);
+
+    // Trash the file with -f
+    assert(mini(["-f", testfile]) == 0);
+    assert(!testfile.exists());
+    assert(tinfo.file_path.exists());
+    assert(tinfo.info_path.exists());
+
+    // Cleanup
+    scope (success)
+        test_trash_dir.rmdirRecurse();
+}
+
+/**
    Intentionally failing cases to ensure that these are properly handled and for
    code coverage
 */
@@ -278,39 +338,11 @@ unittest {
     assert(mini(["-f", ne]) == 0);
 
     // Restoring a file that doesn't exist
-    assert(mini(["--resotre", ne]) == 1);
+    assert(mini(["--restore", ne]) == 1);
     // Deleting a file that doesn't exist
 
-    // Cleanup
-    scope (success)
-        test_trash_dir.rmdirRecurse();
-}
-
-/**
-   Trash from /tmp/
-   On most systems (including mine) this is a separate tempfs so this test is
-   for cross-filesystem trashing
-*/
-unittest {
-    string testfile = "/tmp/test.file";
-    testfile.write("hello");
-    scope (exit)
-        testfile.remove();
-    assert(testfile.exists());
-    auto tinfo = TrashFile("test.file");
-
-    // Trash the file
-    assert(mini([testfile]) == 0);
-
-    assert(!testfile.exists());
-    assert(tinfo.file_path.exists());
-    assert(tinfo.info_path.exists());
-
-    // Restore the file
-    assert(mini(["--restore", "test.file"]) == 0);
-    assert(testfile.exists());
-    assert(!tinfo.file_path.exists());
-    assert(!tinfo.info_path.exists());
+    // Unknown options should just be ignored
+    assert(mini(["--unknown"]) == 0);
 
     // Cleanup
     scope (success)

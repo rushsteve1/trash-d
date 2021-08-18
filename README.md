@@ -32,13 +32,17 @@ Because of this, `trash-d` will silently ignore unknown options.
 You may need to adapt the build scripts, but the code should be completely
 portable.
 
-You can build it with Dub using `dub build`.
-Or with GDC using `gdc trash.d -o trash`.
+You can build it with Dub using `dub build` and run tests with `dub test`.
+
+Alternatively you can build with GDC using `gdc source/trash.d source/app.d -o trash`.
 
 ## Contributing
 
 Contributions welcome! Please come help me clean up my D code, and otherwise
 make `trash-d` more useful!
+
+In particular help with packaging `trash-d` for various distros and operating
+systems would be greatly appreciated!
 
 However keep in mind that this is a simple tool with a simple job, so it's never
 going to do *that* much.
