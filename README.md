@@ -4,16 +4,18 @@ A near drop-in replacement for `rm` that uses the
 [Freedesktop trash bin](https://specifications.freedesktop.org/trash-spec/trashspec-latest.html).
 Written in the [D programming language](https://dlang.org/).
 
-**DOES NOT WORK ON WINDOWS** and there are no plans for support.
-Should work on any POSIX system with a D compiler.
+**ONLY LINUX AND BSD ARE SUPPORTED**
+Windows won't work at all, and MacOS probably won't either.
+There are no plans for support of either platform.
+Any POSIX and Freedesktop compliant system should work fine.
 
-You can install a pre-built version from the
+You can install a pre-built version (`x86_64-linux-gnu`) from the
 [GitHub releases page](https://github.com/rushsteve1/trash-d/releases)
 
 I gave a brief informal talk about this project and D at
 [DoomConf 2021](https://doomconf.netlify.app/)
-which also serves as documentation
-[slides here here](https://doomconf.netlify.app/rushsteve1/trash-d)
+you can see
+[the slides here](https://doomconf.netlify.app/rushsteve1/trash-d)
 
 ## `rm` compatibility
 
