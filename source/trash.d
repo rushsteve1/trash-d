@@ -56,7 +56,7 @@ import core.time : hnsecs;
 */
 
 /// trash-d is versioned sequentially starting at 1
-const int VER = 9;
+const int VER = 10;
 const string VER_NAME = "Jetstream Sam";
 const string VER_TEXT = format("trash-d version %s '%s'", VER, VER_NAME);
 const string COPY_TEXT = "Copyright (C) 2021 Steven vanZyl.
@@ -399,6 +399,8 @@ void empty() {
 
         // Always print out that the trash bin was emptied
         writeln("Trash bin emptied");
+
+        createMissingFolders();
     }
 }
 

@@ -221,9 +221,9 @@ unittest {
     assert(mini(["-f", "--empty"]) == 0);
     assert(!tinfo.file_path.exists());
     assert(!tinfo.info_path.exists());
-    assert(!OPTS.files_dir.exists());
-    assert(!OPTS.info_dir.exists());
-    assert(!OPTS.dirsize_file.exists());
+    assert(OPTS.files_dir.exists());
+    assert(OPTS.info_dir.exists());
+    assert(OPTS.dirsize_file.exists());
 
     // Cleanup
     scope (success)
