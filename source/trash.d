@@ -44,7 +44,7 @@ import std.format;
 import std.datetime.systime : Clock, SysTime;
 import std.string;
 import std.outbuffer : OutBuffer;
-import std.algorithm : map, maxElement;
+import std.algorithm : filter, map, maxElement, sum;
 import std.range : array, chain;
 import core.stdc.errno : EXDEV;
 import core.time : hnsecs;
@@ -56,7 +56,7 @@ import core.time : hnsecs;
 */
 
 /// trash-d is versioned sequentially starting at 1
-const int VER = 10;
+const int VER = 11;
 const string VER_NAME = "Jetstream Sam";
 const string VER_TEXT = format("trash-d version %s '%s'", VER, VER_NAME);
 const string COPY_TEXT = "Copyright (C) 2021 Steven vanZyl.
@@ -106,17 +106,17 @@ struct Opts {
 
     /// The path to the info directory
     @property @safe string info_dir() const nothrow {
-        return trash_dir.chainPath("info").array();
+        return trash_dir.buildPath("info");
     }
 
     /// The path to the files directory
     @property @safe string files_dir() const nothrow {
-        return trash_dir.chainPath("files").array();
+        return trash_dir.buildPath("files");
     }
 
     /// The path to the directorysizes file
     @property @safe string dirsize_file() const nothrow {
-        return trash_dir.chainPath("directorysizes").array();
+        return trash_dir.buildPath("directorysizes");
     }
 }
 
@@ -131,7 +131,7 @@ static Opts OPTS;
 */
 struct TrashFile {
     /// Format string used to parse and format the `.trashinfo` files
-    const string info_fstr = "[Trash Info]\nPath=%s\nDeletionDate=%s";
+    const string info_fstr = "[Trash Info]\nPath=%s\nDeletionDate=%s\n";
     /// The base name of this file
     string file_name;
     /// The absolute original path of this file
@@ -156,8 +156,12 @@ struct TrashFile {
        a file that is about to be added to the trash bin.
     */
     this(in string p, in SysTime now) {
-        orig_path = p.absolutePath();
+        orig_path = p.buildNormalizedPath().absolutePath();
         file_name = orig_path.baseName().chompPrefix(".");
+
+        if (orig_path.isDir() && orig_path.endsWith("/")) {
+            orig_path = orig_path.chop();
+        }
 
         // If a file with the same name exists in the trash,
         // generate a random 4-digit numeric suffix
@@ -170,12 +174,12 @@ struct TrashFile {
 
     /// Path to the file in the trash bin
     @property @safe string file_path() const nothrow {
-        return OPTS.files_dir.chainPath(file_name).array();
+        return OPTS.files_dir.buildPath(file_name);
     }
 
     /// Path to the matching `.trashinfo` file
-    @property @safe dstring info_path() const {
-        return OPTS.info_dir.chainPath(file_name).chain(".trashinfo").array();
+    @property @safe string info_path() const {
+        return OPTS.info_dir.buildPath(file_name) ~ ".trashinfo";
     }
 
     // TODO check for and report write protected files like RM does
@@ -202,6 +206,16 @@ struct TrashFile {
     /// Formats a `.trashinfo` for this file
     @property @safe string infoString() const {
         return format(info_fstr, orig_path, deletion_date.toISOExtString());
+    }
+
+    /// Gets the size of the file or folder, walking through directories if needed
+    ulong getSize() const {
+        if (file_path.isDir()) {
+            return file_path.dirEntries(SpanMode.depth, false).filter!(e => e.isFile())
+                .map!(e => e.getSize())
+                .sum();
+        }
+        return file_path.getSize();
     }
 }
 
@@ -361,7 +375,11 @@ int trashOrRm(in string path) {
     // Otherwise continue on with the regular trashing
     if (OPTS.rm) {
         log("deleting: %s", path);
-        path.remove();
+        if (path.isDir()) {
+            path.rmdirRecurse();
+        } else {
+            path.remove();
+        }
         return 0;
     }
 
@@ -373,9 +391,10 @@ int trashOrRm(in string path) {
     // Write the .trashinfo file
     tfile.info_path.append(tfile.infoString);
 
+    // If this is a directory then write to the directorysizes file
     if (tfile.file_path.isDir()) {
-        const ulong size = tfile.file_path.getSize();
-        OPTS.dirsize_file.append(format("%s %s %s", size, now.toUnixTime(), tfile.file_name));
+        const ulong size = tfile.getSize();
+        OPTS.dirsize_file.append(format("%s %s %s\n", size, now.toUnixTime(), tfile.file_name));
     }
 
     return 0;
@@ -478,6 +497,11 @@ int restoreOrDel(in string name, bool del) {
     // Always remove the trashinfo file
     tfile.info_path.remove();
 
+    // Write a new directorysizes file with the appropriate line removed
+    dstring new_dirsize = File(OPTS.dirsize_file).byLine()
+        .filter!(l => !l.endsWith(tfile.file_name)).join('\n').array();
+    File(OPTS.dirsize_file, "w").write(new_dirsize);
+
     return 0;
 }
 
@@ -578,25 +602,25 @@ int runCommands(string[] args) {
     // Create missing folders if needed
     createMissingFolders();
 
-    // Handle emptying the trash
-    if (OPTS.empty) {
-        empty();
-        return 0;
-    }
-
     // Handle listing files in trash bin
     if (OPTS.list) {
         list();
         return 0;
     }
 
+    // Handle restoring trash files
+    if (OPTS.restore)
+        return restoreOrDel(OPTS.restore, false);
+
     // Handle deleting a file
     if (OPTS.del)
         return restoreOrDel(OPTS.del, true);
 
-    // Handle restoring trash files
-    if (OPTS.restore)
-        return restoreOrDel(OPTS.restore, false);
+    // Handle emptying the trash
+    if (OPTS.empty) {
+        empty();
+        return 0;
+    }
 
     // Remove the first argument, ie the program name
     // Then make sure at least 1 file was specified

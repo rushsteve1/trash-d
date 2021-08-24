@@ -203,19 +203,21 @@ unittest {
     assert(testdir.exists());
     assert(!tinfo.file_path.exists());
     assert(!tinfo.info_path.exists());
+    assert(!OPTS.dirsize_file.readText().canFind(tinfo.file_name));
 
     // Also should not work
     assert(mini(["-d", testdir]) != 0);
     assert(testdir.exists());
     assert(!tinfo.file_path.exists());
     assert(!tinfo.info_path.exists());
+    assert(!OPTS.dirsize_file.readText().canFind(tinfo.file_name));
 
     // Should work
     assert(mini(["-r", testdir]) == 0);
     assert(!testdir.exists());
     assert(tinfo.file_path.exists());
     assert(tinfo.info_path.exists());
-    assert(!std.range.empty(OPTS.dirsize_file.readText().find(testdir)));
+    assert(OPTS.dirsize_file.readText().canFind(tinfo.file_name));
 
     // Empty the trash
     assert(mini(["-f", "--empty"]) == 0);
@@ -224,6 +226,33 @@ unittest {
     assert(OPTS.files_dir.exists());
     assert(OPTS.info_dir.exists());
     assert(OPTS.dirsize_file.exists());
+
+    // Cleanup
+    scope (success)
+        test_trash_dir.rmdirRecurse();
+}
+
+/**
+   Test recursively deleting a folder with --rm
+*/
+unittest {
+    string testdir = "test-dir";
+    testdir.mkdir();
+    scope (failure)
+        testdir.rmdirRecurse();
+    assert(testdir.exists());
+    auto tinfo = TrashFile(testdir, Clock.currTime());
+
+    string testfile = testdir ~ "/test.file";
+    testfile.write("hello");
+    assert(testfile.exists());
+
+    // Should work
+    assert(mini(["--rm", "-r", testdir]) == 0);
+    assert(!testdir.exists());
+    assert(!tinfo.file_path.exists());
+    assert(!tinfo.info_path.exists());
+    assert(!OPTS.dirsize_file.readText().canFind(tinfo.file_name));
 
     // Cleanup
     scope (success)
