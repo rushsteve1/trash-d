@@ -229,21 +229,20 @@ struct TrashFile {
    Prints a formatted error message to stderr with the program name at the
    beginning
 */
-pragma(inline) void err(Char, A...)(in Char[] fmt, A args) {
+void err(Char, A...)(in Char[] fmt, A args) {
     stderr.writefln("%s: " ~ fmt, OPTS.prog_name, args);
 }
 
 /**
    Same as `err()` but only prints if `OPTS.verbose` is true
 */
-pragma(inline):
 void log(Char, A...)(in Char[] fmt, A args) {
     if (OPTS.verbose) {
         err("log: " ~ fmt, args);
     }
 }
 
-pragma(inline) int ferr(Char, A...)(in Char[] fmt, A args) {
+int ferr(Char, A...)(in Char[] fmt, A args) {
     if (OPTS.force) {
         log(fmt, args);
         return 0;
