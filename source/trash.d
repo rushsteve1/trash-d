@@ -571,15 +571,18 @@ int parseOpts(ref string[] args) {
         return -1;
     }
 
-    // Get the correct XDG directory
-    string data_home = environment.get("XDG_DATA_HOME");
-    if (data_home is null) {
-        data_home = expandTilde("~/.local/share");
+    OPTS.trash_dir = environment.get("TRASH_D_DIR");
+    if (OPTS.trash_dir is null) {
+        // Get the correct XDG directory
+        string data_home = environment.get("XDG_DATA_HOME");
+        if (data_home is null) {
+            data_home = expandTilde("~/.local/share");
+        } else {
+            // Set the trash dir option
+            OPTS.trash_dir = data_home.chainPath("Trash").asAbsolutePath().array();
+            log("trash directory: %s", OPTS.trash_dir);
+        }
     }
-
-    // Set the trash dir option
-    OPTS.trash_dir = data_home.chainPath("Trash").asAbsolutePath().array();
-    log("trash directory: %s", OPTS.trash_dir);
 
     // This function is a little special because it has a unique return code
     // -1 means "stop program and with status code 0"
