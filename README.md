@@ -34,7 +34,7 @@ portable.
 
 You can build it with Dub using `dub build` and run tests with `dub test`.
 
-Alternatively you can build with GDC using `gdc source/trash.d source/app.d -o trash`.
+CMake build files can be generated using `dub generate cmake`.
 
 ### Installing
 

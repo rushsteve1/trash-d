@@ -167,7 +167,11 @@ int restoreOrDel(in string name, bool del) {
     if (del) {
         tfile.file_path.remove();
     } else {
-        tfile.file_path.renameOrCopy(tfile.orig_path);
+        // If the original desination is writeable
+        if (tfile.writeable
+                || prompt("%s is write protected, attempt restore anyway?", tfile.orig_path)) {
+            tfile.file_path.renameOrCopy(tfile.orig_path);
+        }
     }
     // Always remove the trashinfo file
     tfile.info_path.remove();

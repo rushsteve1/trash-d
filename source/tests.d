@@ -165,7 +165,7 @@ unittest {
    Test recursively trashing a folder then emptying the trash
 */
 unittest {
-    string testdir = "test-dir";
+    string testdir = "test-dir/";
     testdir.mkdir();
     scope (failure)
         testdir.rmdirRecurse();
@@ -204,6 +204,9 @@ unittest {
     assert(OPTS.files_dir.exists());
     assert(OPTS.info_dir.exists());
     assert(OPTS.dirsize_file.exists());
+
+    // Empty operands should error
+    assert(mini(["-f"]) == 1);
 
     // Cleanup
     scope (success)

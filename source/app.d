@@ -27,6 +27,8 @@ int main(string[] args) {
     switch (res) {
         case 0:
             break;
+        // This is a special case where the options parsing wants to stop
+        // execution but there was no error
         case -1:
             return 0;
         default:
