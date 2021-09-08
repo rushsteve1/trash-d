@@ -17,12 +17,15 @@ jobs:
       with:
         compiler: ldc-latest
 
+    - name: Lint
+      run: dub lint
+
     - name: Build & Test
       run: |
         dub build --build=release --compiler=$DC
         dub test --compiler=$DC
         strip trash
-        
+
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v2
       with:
