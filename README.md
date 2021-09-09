@@ -2,19 +2,21 @@
 
 A near drop-in replacement for `rm` that uses the
 [Freedesktop trash bin](https://specifications.freedesktop.org/trash-spec/trashspec-latest.html).
-Written in the [D programming language](https://dlang.org/).
+Written in the [D programming language](https://dlang.org/)
+using only D's Phobos standard library.
 
 **ONLY LINUX AND BSD ARE SUPPORTED!**
+
 Windows won't work at all, and MacOS probably won't either.
-There are no plans for support of either platform.
 Any POSIX and Freedesktop compliant system should work fine.
+PRs for expanding support are very welcome!
 
 You can install a pre-built version (`x86_64-linux-gnu`) from the
 [GitHub releases page](https://github.com/rushsteve1/trash-d/releases)
 
 I gave a brief informal talk about this project and D at
 [DoomConf 2021](https://doomconf.netlify.app/)
-you can see
+(recording is a bit messed up and only has half my talk) you can see also
 [the slides here](https://doomconf.netlify.app/rushsteve1/trash-d)
 
 ## `rm` compatibility
@@ -25,6 +27,8 @@ compatibility with `rm`, but you should be able to `alias rm=trash` and not
 notice the difference.
 
 Because of this, `trash-d` will silently ignore unknown options.
+Be warned that this may be subject to change as `trash-d`'s compatibility
+with `rm` increases.
 
 ## Building
 
@@ -87,8 +91,8 @@ order.
 Contributions welcome! Please come help me clean up my D code, and otherwise
 make `trash-d` more useful!
 
-In particular help with packaging `trash-d` for various distros and operating
-systems would be greatly appreciated!
+In particular help with packaging `trash-d` for various distros
+and expanding support for other operating systems would be greatly appreciated!
 
 However keep in mind that this is a simple tool with a simple job, so it's never
 going to do *that* much.
@@ -98,6 +102,9 @@ going to do *that* much.
 Versions of `trash-d` are numbered sequentially with a bump every time I change
 some functionality. Consider every change to be a breaking change, and be
 happily surprised when it's not!
+I have a bad habit of bumping the number with one commit, only to immediately
+bump it again before tagging a release. So the releases might have some gaps.
+Sorry about that...
 
 Version names are changed whenever something major has changed. Don't treat
 these like actual version indicators, they're just something fun.
@@ -106,3 +113,9 @@ these like actual version indicators, they're just something fun.
 
 `trash-d` is licensed under the terms of the [MIT License](./LICENSE).
 You are free to use it for any purpose under the terms of that license.
+
+## Similar Projects
+
+- https://github.com/andreafrancia/trash-cli
+- https://github.com/sindresorhus/trash
+- https://github.com/alphapapa/rubbish.py
