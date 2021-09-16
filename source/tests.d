@@ -63,6 +63,10 @@ unittest {
     parseOpts(args);
     assert(OPTS.list);
 
+    args = t ~ ["--orphans"];
+    parseOpts(args);
+    assert(OPTS.orphans);
+
     args = t ~ ["-f", "--empty"];
     parseOpts(args);
     assert(OPTS.force);
@@ -332,6 +336,28 @@ unittest {
 }
 
 /**
+   Test the orpahans command which lists files without trashinfos
+*/
+unittest {
+    // Run a command so that the trash directory is created
+    assert(mini(["--list"]) == 0);
+
+    string testname = "test.file";
+    string testfile = OPTS.files_dir ~ "/" ~ testname;
+    testfile.write("hello");
+    scope (failure)
+        testfile.remove();
+    assert(testfile.exists());
+
+    assert(mini(["--orphans"]) == 0);
+    assert(testfile.exists());
+
+    // Cleanup
+    scope (success)
+        test_trash_dir.rmdirRecurse();
+}
+
+/**
    Intentionally failing cases to ensure that these are properly handled and for
    code coverage
 */
@@ -350,6 +376,7 @@ unittest {
     // Restoring a file that doesn't exist
     assert(mini(["--restore", ne]) == 1);
     // Deleting a file that doesn't exist
+    assert(mini(["--rm", ne]) == 1)
 
     // Unknown options should just be ignored
     assert(mini(["--unknown"]) == 0);

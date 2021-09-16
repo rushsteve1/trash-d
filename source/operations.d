@@ -11,7 +11,7 @@ import std.algorithm;
 import std.datetime.systime : Clock;
 import std.file;
 import std.format : format;
-import std.path : baseName, stripExtension;
+import std.path : baseName, buildNormalizedPath, stripExtension;
 import std.range : array;
 import std.stdio;
 import std.string;
@@ -128,6 +128,21 @@ void list() {
     writefln("%-*s\t%-*s\t%s", maxname, "Name", maxpath, "Path", "Del. Date");
     foreach (TrashFile t; tf) {
         writefln("%-*s\t%-*s\t%s", maxname, t.file_name, maxpath, t.orig_path, t.deletion_date);
+    }
+}
+
+/**
+  List out the files that are in the trash bin but do not have matching
+  .trashinfo files so would not show up in --list.
+  These can be secretly lurking files that are wasting space
+*/
+void orphans() {
+    auto files = OPTS.files_dir.dirEntries(SpanMode.shallow);
+    auto tf = files.map!(f => buildNormalizedPath(OPTS.info_dir, f) ~ ".trashinfo")
+                 .filter!(p => !p.exists()).array();
+
+    foreach (TrashFile file; tf) {
+        writefln("%s", file.file_name);
     }
 }
 

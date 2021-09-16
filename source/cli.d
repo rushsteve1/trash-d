@@ -40,6 +40,8 @@ struct Opts {
     // ===== Custom Options ====
     /// List out the files in the trash bin
     bool list;
+    /// List out the orphaned files in the trash bin
+    bool orphans;
     /// Empty the trash bin
     bool empty;
     /// Actually delete instead of moving to trash
@@ -95,10 +97,11 @@ int parseOpts(ref string[] args) {
                 "force|f", "Don't prompt and ignore errors.", &OPTS.force,
                 "version", "Output the version and exit.", &OPTS.ver,
 
-                "empty", "Empty the trash bin.", &OPTS.empty,
-                "delete", "Delete a file from the trash.", &OPTS.del,
                 "list", "List out the files in the trash.", &OPTS.list,
+		"orphans", "List orphaned files in the trash.", &OPTS.orphans,
                 "restore", "Restore a file from the trash.", &OPTS.restore,
+                "delete", "Delete a file from the trash.", &OPTS.del,
+                "empty", "Empty the trash bin.", &OPTS.empty,
                 "rm", "Escape hatch to permanently delete a file.", &OPTS.rm,
         );
         // dfmt on

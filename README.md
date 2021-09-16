@@ -5,7 +5,7 @@ A near drop-in replacement for `rm` that uses the
 Written in the [D programming language](https://dlang.org/)
 using only D's Phobos standard library.
 
-**ONLY LINUX AND BSD ARE SUPPORTED!**
+**ONLY LINUX AND BSD ARE CURRENTLY SUPPORTED!**
 
 Windows won't work at all, and MacOS probably won't either.
 Any POSIX and Freedesktop compliant system should work fine.
@@ -65,17 +65,18 @@ additional long options for the `trash-d` specific features.
 - `-i`, `--interactive` Ask before each deletion.
 - `-f`, `--force` Don't prompt and ignore errors.
 - `--version` Output the version and exit.
-- `--empty` Empty the trash bin.
-- `--delete FILE` Delete a file from the trash.
 - `--list` List out the files in the trash.
+- `--orphans` List orphaned files in the trash.
+- `--delete FILE` Delete a file from the trash.
 - `--restore FILE` Restore a file from the trash.
+- `--empty` Empty the trash bin.
 - `--rm` Escape hatch to permanently delete a file.
 - `-h`, `--help` This help information.
 
 
 #### Option Precedence
 
-The `--help`, `--version`, `--list`, `--restore`, `--delete`, and
+The `--help`, `--version`, `--list`, `--orphans`, `--restore`, `--delete`, and
 `--empty` flags all cause the program to short-circuit and perform only that
 operation and no others. Their precedence is in that order exactly, and is
 intended to cause the least destruction.

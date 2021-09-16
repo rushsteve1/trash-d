@@ -33,6 +33,12 @@ int runCommands(string[] args) {
         return 0;
     }
 
+    // Handle listing out orphans
+    if (OPTS.orphans) {
+        orphans();
+	return 0;
+    }
+
     // Handle restoring trash files
     if (OPTS.restore)
         return restoreOrDel(OPTS.restore, false);
