@@ -2,8 +2,7 @@
   CLI flag parsing and structure using D's getopt implementation
 */
 
-import ver : COPY_TEXT, VER, VER_NAME, VER_TEXT;
-import run : OPTS;
+import ver : COPY_TEXT, VER_TEXT;
 import util : log, err;
 
 import std.getopt;
@@ -65,7 +64,27 @@ struct Opts {
     @property @safe string dirsize_file() const nothrow {
         return trash_dir.buildPath("directorysizes");
     }
+
+    /// Reset the global OPTS to default values
+    @safe void reset() {
+        OPTS.dir = false;
+        OPTS.recursive = false;
+        OPTS.verbose = false;
+        OPTS.interactive = false;
+        OPTS.force = false;
+        OPTS.ver = false;
+
+        OPTS.list = false;
+        OPTS.orphans = false;
+        OPTS.empty = false;
+        OPTS.rm = false;
+        OPTS.restore = null;
+        OPTS.del = null;
+    }
 }
+
+/// The parsed CLI options are stored here on a global `Opts` struct
+static Opts OPTS;
 
 /**
    Parses the command line options into the `OPTS` global struct using D's built-in `getopt` parser
@@ -76,9 +95,20 @@ int parseOpts(ref string[] args) {
 
     // Always reset the global options at each call
     // This is mostly useful for testing
-    // TODO this is funky, clean it up a bit
-    const Opts o;
-    OPTS = o;
+    OPTS.reset();
+
+    // Figure out where the trash dir is based on env variables
+    OPTS.trash_dir = environment.get("TRASH_D_DIR");
+    if (OPTS.trash_dir is null) {
+        // Get the correct XDG directory
+        string data_home = environment.get("XDG_DATA_HOME");
+        if (data_home is null) {
+            data_home = expandTilde("~/.local/share");
+        }
+        // Set the trash dir option
+        OPTS.trash_dir = data_home.buildPath("Trash").absolutePath();
+        log("trash directory: %s", OPTS.trash_dir);
+    }
 
     // Parse CLI options using D's getopt
     GetoptResult helpInfo;
@@ -98,7 +128,7 @@ int parseOpts(ref string[] args) {
                 "version", "Output the version and exit.", &OPTS.ver,
 
                 "list", "List out the files in the trash.", &OPTS.list,
-		"orphans", "List orphaned files in the trash.", &OPTS.orphans,
+                "orphans", "List orphaned files in the trash.", &OPTS.orphans,
                 "restore", "Restore a file from the trash.", &OPTS.restore,
                 "delete", "Delete a file from the trash.", &OPTS.del,
                 "empty", "Empty the trash bin.", &OPTS.empty,
@@ -120,30 +150,11 @@ int parseOpts(ref string[] args) {
 
         if (arglen < 2)
             return 1;
+
+        // This function is a little special because it has a unique return code
+        // -1 means "stop program and with status code 0"
         return -1;
     }
 
-    // Print the version number and return
-    // This is here so that the program quits out on --version quickly
-    if (OPTS.ver) {
-        writefln("\033[1m%s\033[0m\n\n%s", VER_TEXT, COPY_TEXT);
-        return -1;
-    }
-
-    OPTS.trash_dir = environment.get("TRASH_D_DIR");
-    if (OPTS.trash_dir is null) {
-        // Get the correct XDG directory
-        string data_home = environment.get("XDG_DATA_HOME");
-        if (data_home is null) {
-            data_home = expandTilde("~/.local/share");
-        } else {
-            // Set the trash dir option
-            OPTS.trash_dir = data_home.buildPath("Trash").absolutePath();
-            log("trash directory: %s", OPTS.trash_dir);
-        }
-    }
-
-    // This function is a little special because it has a unique return code
-    // -1 means "stop program and with status code 0"
     return 0;
 }
