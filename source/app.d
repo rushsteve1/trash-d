@@ -4,8 +4,8 @@
   The two files are separated for testing purposes
 */
 
-import run : OPTS, runCommands;
-import cli : parseOpts;
+import run : runCommands;
+import cli : OPTS, parseOpts;
 import util : err;
 
 import core.memory;
@@ -27,8 +27,8 @@ int main(string[] args) {
     switch (res) {
         case 0:
             break;
-        // This is a special case where the options parsing wants to stop
-        // execution but there was no error
+            // This is a special case where the options parsing wants to stop
+            // execution but there was no error
         case -1:
             return 0;
         default:

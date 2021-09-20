@@ -2,7 +2,7 @@
    TrashFile structure which handles information related to a file in the trash
 */
 
-import run : OPTS;
+import cli : OPTS;
 import util : log;
 
 import core.sys.posix.sys.stat : S_IWUSR;

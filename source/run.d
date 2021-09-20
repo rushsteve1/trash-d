@@ -9,14 +9,13 @@
   - https://specifications.freedesktop.org/trash-spec/trashspec-latest.html
 */
 
-import cli : Opts, parseOpts;
+import cli : OPTS, parseOpts;
 import operations;
 import util : createMissingFolders, err, log;
+import ver : COPY_TEXT, VER_TEXT;
 
+import std.stdio : writefln;
 import std.string : startsWith;
-
-/// The parsed CLI options are stored here on a global `Opts` struct
-static Opts OPTS;
 
 /**
    Given the remaining string arguments and the global `OPTS` struct, runs the
@@ -24,12 +23,24 @@ static Opts OPTS;
    operations and acts as a secondary entrypoint that `main()` can `try`.
 */
 int runCommands(string[] args) {
+    // Print the version number and return
+    if (OPTS.ver) {
+        writefln("\033[1m%s\033[0m\n\n%s", VER_TEXT, COPY_TEXT);
+        return -1;
+    }
+
     // Create missing folders if needed
     createMissingFolders();
 
     // Handle listing files in trash bin
     if (OPTS.list) {
         list();
+        return 0;
+    }
+
+    // Handle listing out orphans
+    if (OPTS.orphans) {
+        orphans();
         return 0;
     }
 

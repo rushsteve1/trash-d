@@ -2,7 +2,7 @@
   Helper utility functions to perform various common operations
 */
 
-import run : OPTS;
+import cli : OPTS;
 
 import core.stdc.errno : EXDEV;
 import std.stdio : stderr, stdin, writef;

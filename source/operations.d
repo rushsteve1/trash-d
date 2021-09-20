@@ -2,7 +2,7 @@
    The various file operations that trash-d can perform
 */
 
-import run : OPTS;
+import cli : OPTS;
 import trashfile : TrashFile;
 import util;
 
@@ -11,7 +11,7 @@ import std.algorithm;
 import std.datetime.systime : Clock;
 import std.file;
 import std.format : format;
-import std.path : baseName, stripExtension;
+import std.path : baseName, buildNormalizedPath, stripExtension;
 import std.range : array;
 import std.stdio;
 import std.string;
@@ -115,6 +115,7 @@ void list() {
     }
 
     // Map the `DirEntry`s to `TrashFile`s
+    // MUST call .array() to ensure this doesn't get altered by subsequent algos
     auto tf = entries.map!(e => TrashFile(e.name.baseName().stripExtension())).array();
 
     // Calculate the maximum length of the name and path for formatting
@@ -129,6 +130,29 @@ void list() {
     foreach (TrashFile t; tf) {
         writefln("%-*s\t%-*s\t%s", maxname, t.file_name, maxpath, t.orig_path, t.deletion_date);
     }
+}
+
+/**
+  List out the files that are in the trash bin but do not have matching
+  .trashinfo files so would not show up in --list.
+  These can be secretly lurking files that are wasting space
+*/
+void orphans() {
+    const auto files = OPTS.files_dir.dirEntries(SpanMode.shallow).array();
+
+    // If the trash is empty then say so
+    if (files.length <= 0) {
+        writeln("No orphaned files");
+        return;
+    }
+
+    auto tf = files.map!(f => buildNormalizedPath(OPTS.info_dir, f) ~ ".trashinfo")
+        .filter!(p => !p.exists());
+
+    foreach (TrashFile file; tf) {
+        writefln("%s", buildNormalizedPath(OPTS.files_dir, file.file_name));
+    }
+    writefln("\nUse %s --empty to delete these permanently", OPTS.prog_name);
 }
 
 /**
