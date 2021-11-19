@@ -22,8 +22,8 @@ jobs:
 
     - name: Build & Test
       run: |
+        dub test --coverage --compiler=$DC
         dub build --build=release --compiler=$DC
-        dub test --compiler=$DC
         strip trash
 
     - name: Upload a Build Artifact
@@ -31,3 +31,9 @@ jobs:
       with:
         name: "trash-d"
         path: "trash"
+  
+    - name: Upload Coverage Logs
+      uses: actions/upload-artifact@v2
+      with:
+        name: "coverage-logs"
+        path: "*.lst"
