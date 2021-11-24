@@ -13,6 +13,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - uses: r-lib/actions/setup-pandoc@v1
     - uses: dlang-community/setup-dlang@v1
       with:
         compiler: ldc-latest
@@ -26,6 +27,9 @@ jobs:
         dub build --build=release --compiler=$DC
         strip trash
 
+    - name: Man Page with Pandoc
+      run: "pandoc -s -t man -o trash.man MANUAL.md"
+
     - name: Build Distro Packages
       run: |
         sudo gem install fpm
@@ -35,7 +39,9 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: "trash-d"
-        path: "trash"
+        path: |
+              trash
+              trash.man
   
     - name: Upload Coverage Logs
       uses: actions/upload-artifact@v2

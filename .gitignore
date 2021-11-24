@@ -36,3 +36,5 @@ test-trash/
 
 # Built packages
 pkg/
+*.1
+*.man

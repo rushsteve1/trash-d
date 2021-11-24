@@ -7,34 +7,23 @@
 ![Lines of code](https://img.shields.io/tokei/lines/github/rushsteve1/trash-d)
 
 A near drop-in replacement for `rm` that uses the
-[Freedesktop trash bin](https://specifications.freedesktop.org/trash-spec/trashspec-latest.html).
+[FreeDesktop trash bin](https://specifications.freedesktop.org/trash-spec/trashspec-latest.html).
 Written in the [D programming language](https://dlang.org/)
 using only D's Phobos standard library.
 
 **ONLY LINUX AND BSD ARE CURRENTLY SUPPORTED!**
 
 Windows won't work at all, and MacOS probably won't either.
-Any POSIX and Freedesktop compliant system should work fine.
+Any POSIX and FreeDesktop compliant system should work fine.
 PRs for expanding support are very welcome!
 
 You can install a pre-built version (`x86_64-linux-gnu`) from the
-[GitHub releases page](https://github.com/rushsteve1/trash-d/releases)
+  * [ ] [GitHub releases page](https://github.com/rushsteve1/trash-d/releases)
 
 I gave a brief informal talk about this project and D at
 [DoomConf 2021](https://doomconf.netlify.app/)
 (recording is a bit messed up and only has half my talk) you can see also
 [the slides here](https://doomconf.netlify.app/rushsteve1/trash-d)
-
-## `rm` compatibility
-
-One of `trash-d`'s primary goals is near compatibility with the standard `rm`
-tool.The keyword here is "near". The goal is not exact flag-for-flag
-compatibility with `rm`, but you should be able to `alias rm=trash` and not
-notice the difference.
-
-Because of this, `trash-d` will silently ignore unknown options.
-Be warned that this may be subject to change as `trash-d`'s compatibility
-with `rm` increases.
 
 ## Building
 
@@ -48,7 +37,8 @@ CMake build files can be generated using `dub generate cmake`.
 
 ### Installing
 
-Simply drop the `trash` binary somewhere on your `$PATH` such as `$HOME/.local/bin`.
+Simply drop the `trash` binary somewhere on your `$PATH` such as
+`$HOME/.local/bin` or use the provided DEB and RPM packages.
 
 Optionally set `alias rm=trash` in your shell config to replace usages of `rm`
 with `trash-d`.
@@ -58,40 +48,19 @@ with `trash-d`.
 Using `trash-d` is the same as most other command line utilities, and
 intentionally very similar to `rm`.
 
-`trash [OPTIONS...] [FILES...]`
-
-### Options & Flags
-
-The options and flags are intended to mirror `rm`'s closely, with some
-additional long options for the `trash-d` specific features.
-
-- `-d`, `--dir` Remove empty directories.
-- `-r`, `--recursive` Delete directories and their contents.
-- `-v`, `--verbose` Print more information.
-- `-i`, `--interactive` Ask before each deletion.
-- `-f`, `--force` Don't prompt and ignore errors.
-- `--version` Output the version and exit.
-- `--list` List out the files in the trash.
-- `--orphans` List orphaned files in the trash.
-- `--delete FILE` Delete a file from the trash.
-- `--restore FILE` Restore a file from the trash.
-- `--empty` Empty the trash bin.
-- `--rm` Escape hatch to permanently delete a file.
-- `-h`, `--help` This help information.
+See the [manual for more information](./MANUAL.md).
 
 
-#### Option Precedence
+### `rm` compatibility
 
-The `--help`, `--version`, `--list`, `--orphans`, `--restore`, `--delete`, and
-`--empty` flags all cause the program to short-circuit and perform only that
-operation and no others. Their precedence is in that order exactly, and is
-intended to cause the least destruction.
+One of `trash-d`'s primary goals is near compatibility with the standard `rm`
+tool.The keyword here is "near". The goal is not exact flag-for-flag
+compatibility with `rm`, but you should be able to `alias rm=trash` and not
+notice the difference.
 
-Therefore the command `trash --empty --list` will list the trash bin and NOT
-empty it.
-
-**NOTE:** Before version 11 `trash-d` followed a slightly incorrect precedence
-order.
+Because of this, `trash-d` will silently ignore unknown options.
+Be warned that this may be subject to change as `trash-d`'s compatibility
+with `rm` increases.
 
 ## Contributing
 

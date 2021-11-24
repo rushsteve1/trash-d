@@ -5,7 +5,7 @@
 import std.format : format;
 
 /// trash-d is versioned sequentially starting at 1
-const int VER = 13;
+const int VER = 14;
 
 /// Ever major release is given a new name
 /// Names are based on video game bosses
