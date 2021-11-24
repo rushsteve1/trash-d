@@ -18,7 +18,7 @@ Any POSIX and FreeDesktop compliant system should work fine.
 PRs for expanding support are very welcome!
 
 You can install a pre-built version (`x86_64-linux-gnu`) from the
-  * [ ] [GitHub releases page](https://github.com/rushsteve1/trash-d/releases)
+[GitHub releases page](https://github.com/rushsteve1/trash-d/releases)
 
 I gave a brief informal talk about this project and D at
 [DoomConf 2021](https://doomconf.netlify.app/)
@@ -49,18 +49,6 @@ Using `trash-d` is the same as most other command line utilities, and
 intentionally very similar to `rm`.
 
 See the [manual for more information](./MANUAL.md).
-
-
-### `rm` compatibility
-
-One of `trash-d`'s primary goals is near compatibility with the standard `rm`
-tool.The keyword here is "near". The goal is not exact flag-for-flag
-compatibility with `rm`, but you should be able to `alias rm=trash` and not
-notice the difference.
-
-Because of this, `trash-d` will silently ignore unknown options.
-Be warned that this may be subject to change as `trash-d`'s compatibility
-with `rm` increases.
 
 ## Contributing
 
