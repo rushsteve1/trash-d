@@ -33,3 +33,6 @@ docs/
 test.file
 test-dir/
 test-trash/
+
+# Built packages
+pkg/

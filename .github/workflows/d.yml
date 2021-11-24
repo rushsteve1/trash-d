@@ -26,6 +26,11 @@ jobs:
         dub build --build=release --compiler=$DC
         strip trash
 
+    - name: Build Distro Packages
+      run: |
+        sudo gem install fpm
+        ruby package.rb
+
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v2
       with:
@@ -37,3 +42,9 @@ jobs:
       with:
         name: "coverage-logs"
         path: "*.lst"
+
+    - name: Upload Packages
+      uses: actions/upload-artifact@v2
+      with:
+        name: "built-packages"
+        path: "pkg/*"
