@@ -112,11 +112,11 @@ ENVIRONMENT
 FILES
 =====
 
-`$XDG_DATA_HOME/Trash`
+**`$XDG_DATA_HOME/Trash`**
 : Standard location of trash files and metadata as per the FreeDesktop
   specification. Used in the absence of **`$TRASH_D_DIR`**.
 
-`~/.local/share/Trash`
+**`~/.local/share/Trash`**
 : The fallback path used in the absence of both **`$XDG_DATA_HOME`** and
   **`$TRASH_D_DIR`**.
 
