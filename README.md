@@ -1,10 +1,10 @@
 # trash-d
 
-![GitHub](https://img.shields.io/github/license/rushsteve1/trash-d)
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/rushsteve1/trash-d/D)
-![GitHub last commit (branch)](https://img.shields.io/github/last-commit/rushsteve1/trash-d/main)
-![GitHub tag (latest SemVer pre-release)](https://img.shields.io/github/v/tag/rushsteve1/trash-d?label=version)
-![Lines of code](https://img.shields.io/tokei/lines/github/rushsteve1/trash-d)
+[![License](https://img.shields.io/github/license/rushsteve1/trash-d)](https://github.com/rushsteve1/trash-d/blob/main/LICENSE)
+[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/rushsteve1/trash-d/D)](https://github.com/rushsteve1/trash-d/actions)
+[![GitHub last commit (branch)](https://img.shields.io/github/last-commit/rushsteve1/trash-d/main)](https://github.com/rushsteve1/trash-d/commits/main)
+[![GitHub tag (latest SemVer pre-release)](https://img.shields.io/github/v/tag/rushsteve1/trash-d?label=version)](https://github.com/rushsteve1/trash-d/releases)
+[![Lines of code](https://img.shields.io/tokei/lines/github/rushsteve1/trash-d)](https://github.com/rushsteve1/trash-d/pulse)
 
 A near drop-in replacement for `rm` that uses the
 [FreeDesktop trash bin](https://specifications.freedesktop.org/trash-spec/trashspec-latest.html).
