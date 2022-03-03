@@ -9,6 +9,7 @@ import std.stdio : stderr, stdin, writef;
 import std.file;
 import std.format : format;
 import std.string : strip, toLower;
+import std.path : buildNormalizedPath;
 
 /**
    Prints a formatted error message to stderr with the program name at the
@@ -97,8 +98,17 @@ void renameOrCopy(in string src, in string tgt) {
         if (e.errno != EXDEV)
             throw e;
 
-        src.copy(tgt);
-        src.remove();
+        if (src.isFile) {
+            src.copy(tgt);
+            src.remove();
+	} else if (src.isDir) {
+	    foreach(string name; src.dirEntries(SpanMode.shallow)) {
+                name.renameOrCopy(buildNormalizedPath(tgt, name));
+	    }
+	    src.rmdir();
+	} else {
+	    err("path was neither file or directory");
+	}
     }
 }
 

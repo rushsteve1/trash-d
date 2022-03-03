@@ -23,6 +23,9 @@ import std.string : startsWith;
    operations and acts as a secondary entrypoint that `main()` can `try`.
 */
 int runCommands(string[] args) {
+    // Set the program name to arg zero so that aliasing to rm causes is better
+    OPTS.prog_name = args[0];
+
     // Print the version number and return
     if (OPTS.ver) {
         writefln("\033[1m%s\033[0m\n\n%s", VER_TEXT, COPY_TEXT);
@@ -60,7 +63,6 @@ int runCommands(string[] args) {
 
     // Remove the first argument, ie the program name
     // Then make sure at least 1 file was specified
-    OPTS.prog_name = args[0];
     args = args[1 .. $];
     if (args.length < 1) {
         err("missing operand");

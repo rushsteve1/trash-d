@@ -1,7 +1,7 @@
 /**
   The main entrypoint of trash-d
-  This is split from the bulk of the implementation which lives in `trash.d`.
-  The two files are separated for testing purposes
+  This is split from the bulk of the implementation and are separated for
+  testing purposes
 */
 
 import run : runCommands;
@@ -27,9 +27,9 @@ int main(string[] args) {
     switch (res) {
         case 0:
             break;
+        case -1:
             // This is a special case where the options parsing wants to stop
             // execution but there was no error
-        case -1:
             return 0;
         default:
             return res;
