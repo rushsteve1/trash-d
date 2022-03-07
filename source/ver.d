@@ -5,11 +5,11 @@
 import std.format : format;
 
 /// trash-d is versioned sequentially starting at 1
-const int VER = 14;
+const int VER = 15;
 
 /// Ever major release is given a new name
 /// Names are based on video game bosses
-const string VER_NAME = "Clifford Unger";
+const string VER_NAME = "Mithrix";
 
 /// The full version string
 const string VER_TEXT = format("trash-d version %s '%s'", VER, VER_NAME);
