@@ -10,7 +10,7 @@
 */
 
 import cli : OPTS, parseOpts;
-import operations;
+import ops;
 import util : createMissingFolders, err, log;
 import ver : COPY_TEXT, VER_TEXT;
 

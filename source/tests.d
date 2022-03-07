@@ -315,6 +315,42 @@ unittest {
 }
 
 /**
+   Trash a directory containing a file from /tmp/
+   On most systems (including mine) this is a separate tempfs so this test is
+   for cross-filesystem trashing
+*/
+unittest {
+    string testdir = "/tmp/tdir";
+    testdir.mkdir();
+    string testfile = testdir ~ "/test.file";
+    testfile.write("hello");
+    scope (exit)
+        testdir.rmdirRecurse();
+    assert(testdir.exists());
+    assert(testfile.exists());
+    auto tinfo = TrashFile(testdir, Clock.currTime());
+
+    // Trash the file
+    assert(mini(["-r", testdir]) == 0);
+
+    assert(!testdir.exists());
+    assert(!testfile.exists());
+    assert(tinfo.file_path.exists());
+    assert(tinfo.info_path.exists());
+
+    // Restore the file
+    assert(mini(["--restore", "tdir"]) == 0);
+    assert(testdir.exists());
+    assert(testfile.exists());
+    assert(!tinfo.file_path.exists());
+    assert(!tinfo.info_path.exists());
+
+    // Cleanup
+    scope (success)
+        test_trash_dir.rmdirRecurse();
+}
+
+/**
    Test trashing a file that does not have write permissions
 */
 unittest {

@@ -9,7 +9,7 @@ import std.stdio : stderr, stdin, writef;
 import std.file;
 import std.format : format;
 import std.string : strip, toLower;
-import std.path : buildNormalizedPath;
+import std.path : buildNormalizedPath, relativePath, absolutePath;
 
 /**
    Prints a formatted error message to stderr with the program name at the
@@ -89,7 +89,8 @@ void createMissingFolders() {
 /**
    Attempts to rename a file `src` to `tgt`, but if that fails with `EXDEV` then
    the `src` and `tgt` paths are on different devices and cannot be renamed
-   across. In that case perform a copy then remove
+   across. In that case perform a copy then remove, descending recursively if
+   needed.
 */
 void renameOrCopy(in string src, in string tgt) {
     try {
@@ -101,14 +102,17 @@ void renameOrCopy(in string src, in string tgt) {
         if (src.isFile) {
             src.copy(tgt);
             src.remove();
-	} else if (src.isDir) {
-	    foreach(string name; src.dirEntries(SpanMode.shallow)) {
-                name.renameOrCopy(buildNormalizedPath(tgt, name));
-	    }
-	    src.rmdir();
-	} else {
-	    err("path was neither file or directory");
-	}
+        } else if (src.isDir) {
+            tgt.mkdir();
+            foreach (string name; src.dirEntries(SpanMode.shallow)) {
+                string rel = name.absolutePath().relativePath(src.absolutePath());
+                string path = buildNormalizedPath(tgt, rel);
+                name.renameOrCopy(path);
+            }
+            src.rmdir();
+        } else {
+            err("path was neither file or directory");
+        }
     }
 }
 
