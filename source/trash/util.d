@@ -2,7 +2,9 @@
   Helper utility functions to perform various common operations
 */
 
-import cli : OPTS;
+module trash.util;
+
+import trash.opts : OPTS;
 
 import core.stdc.errno : EXDEV;
 import std.stdio : stderr, stdin, writef;

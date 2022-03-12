@@ -2,6 +2,8 @@
    Version and copyright information that gets bundled in with trash-d
 */
 
+module trash.ver;
+
 import std.format : format;
 
 /// trash-d is versioned sequentially starting at 1

@@ -2,9 +2,11 @@
    The various file operations that trash-d can perform
 */
 
-import cli : OPTS;
-import trashfile : TrashFile;
-import util;
+module trash.opers;
+
+import trash.opts : OPTS;
+import trash.file : TrashFile;
+import trash.util;
 
 import core.time : hnsecs;
 import std.algorithm;

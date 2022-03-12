@@ -2,9 +2,9 @@
   Integration tests for trash-d
 */
 
-import run : runCommands;
-import cli : OPTS, parseOpts;
-import trashfile : TrashFile;
+import trash.run : runCommands;
+import trash.opts : OPTS, parseOpts;
+import trash.file : TrashFile;
 
 import std.file;
 import std.path;

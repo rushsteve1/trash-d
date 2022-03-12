@@ -9,10 +9,12 @@
   - https://specifications.freedesktop.org/trash-spec/trashspec-latest.html
 */
 
-import cli : OPTS, parseOpts;
-import ops;
-import util : createMissingFolders, err, log;
-import ver : COPY_TEXT, VER_TEXT;
+module trash.run;
+
+import trash.opts : OPTS, parseOpts;
+import trash.opers;
+import trash.util : createMissingFolders, err, log;
+import trash.ver : COPY_TEXT, VER_TEXT;
 
 import std.stdio : writefln;
 import std.string : startsWith;
@@ -23,9 +25,6 @@ import std.string : startsWith;
    operations and acts as a secondary entrypoint that `main()` can `try`.
 */
 int runCommands(string[] args) {
-    // Set the program name to arg zero so that aliasing to rm causes is better
-    OPTS.prog_name = args[0];
-
     // Print the version number and return
     if (OPTS.ver) {
         writefln("\033[1m%s\033[0m\n\n%s", VER_TEXT, COPY_TEXT);

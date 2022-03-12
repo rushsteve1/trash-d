@@ -4,9 +4,9 @@
   testing purposes
 */
 
-import run : runCommands;
-import cli : OPTS, parseOpts;
-import util : err;
+import trash.run : runCommands;
+import trash.opts : OPTS, parseOpts;
+import trash.util : err;
 
 import core.memory;
 import std.file : FileException;

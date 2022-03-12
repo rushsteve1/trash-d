@@ -2,8 +2,10 @@
    TrashFile structure which handles information related to a file in the trash
 */
 
-import cli : OPTS;
-import util : log;
+module trash.file;
+
+import trash.opts : OPTS;
+import trash.util : log;
 
 import core.sys.posix.sys.stat : S_IWUSR;
 import std.algorithm : filter, map, sum;

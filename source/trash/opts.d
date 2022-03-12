@@ -2,8 +2,10 @@
   CLI flag parsing and structure using D's getopt implementation
 */
 
-import ver : COPY_TEXT, VER_TEXT;
-import util : log, err;
+module trash.opts;
+
+import trash.ver : COPY_TEXT, VER_TEXT;
+import trash.util : log, err;
 
 import std.getopt;
 import std.outbuffer : OutBuffer;
@@ -96,6 +98,9 @@ int parseOpts(ref string[] args) {
     // Always reset the global options at each call
     // This is mostly useful for testing
     OPTS.reset();
+
+    // Set the program name to arg zero so that aliasing to rm causes is better
+    OPTS.prog_name = args[0];
 
     // Figure out where the trash dir is based on env variables
     OPTS.trash_dir = environment.get("TRASH_D_DIR");
