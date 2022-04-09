@@ -9,15 +9,17 @@
 A near drop-in replacement for `rm` that uses the
 [FreeDesktop trash bin](https://specifications.freedesktop.org/trash-spec/trashspec-latest.html).
 Written in the [D programming language](https://dlang.org/)
-using only D's Phobos standard library.
+using only D's Phobos standard library, and can be compiled with any recent D
+compiler. This includes GCC, so `trash-d` should run on any *NIX platform that
+GCC supports.
 
 **ONLY LINUX AND BSD ARE CURRENTLY SUPPORTED!**
 
-Windows won't work at all, and MacOS probably won't either.
-Any POSIX and FreeDesktop compliant system should work fine.
-PRs for expanding support are very welcome!
+Windows won't work at all, and MacOS probably won't either. Any POSIX and
+FreeDesktop compliant system should work fine. For rarer *NIXs like Solaris or
+AIX, you're on your own though. PRs for expanding support are very welcome!
 
-You can install a pre-built version (`x86_64-linux-gnu`) from the
+You can install a pre-built statically-linked version (`x86_64-linux`) from the
 [GitHub releases page](https://github.com/rushsteve1/trash-d/releases)
 
 I gave a brief informal talk about this project and D at
@@ -25,20 +27,10 @@ I gave a brief informal talk about this project and D at
 (recording is a bit messed up and only has half my talk) you can see also
 [the slides here](https://doomconf.netlify.app/rushsteve1/trash-d)
 
-## Building
-
-`trash-d` can be built using any D compiler, but it uses Dub and DMD by default.
-You may need to adapt the build scripts, but the code should be completely
-portable.
-
-You can build it with Dub using `dub build` and run tests with `dub test`.
-
-CMake build files can be generated using `dub generate cmake`.
-
 ### Installing
 
 Simply drop the `trash` binary somewhere on your `$PATH` such as
-`$HOME/.local/bin` or use the provided DEB and RPM packages.
+`$HOME/.local/bin`, or use the provided DEB and RPM packages.
 
 Optionally set `alias rm=trash` in your shell config to replace usages of `rm`
 with `trash-d`.
@@ -49,6 +41,16 @@ Using `trash-d` is the same as most other command line utilities, and
 intentionally very similar to `rm`.
 
 See the [manual for more information](./MANUAL.md).
+
+## Building
+
+`trash-d` can be built using any D compiler, but it uses Dub and DMD by default.
+You may need to adapt the build scripts, but the code should be completely
+portable.
+
+You can build it with Dub using `dub build` and run tests with `dub test`.
+
+CMake build files can be generated using `dub generate cmake`.
 
 ## Contributing
 
@@ -83,3 +85,10 @@ You are free to use it for any purpose under the terms of that license.
 - https://github.com/andreafrancia/trash-cli
 - https://github.com/sindresorhus/trash
 - https://github.com/alphapapa/rubbish.py
+- https://github.com/kaelzhang/shell-safe-rm
+- https://github.com/nateshmbhat/rm-trash
+- https://github.com/PhrozenByte/rmtrash
+- https://github.com/icyphox/crap
+
+Unlike many of these, `trash-d` does not require an interpreter like Bash or
+Python, so is more easily portable to new systems.

@@ -89,12 +89,17 @@ order.
 Compatibility with **`rm`**(1) 
 ----------------------------
 
-One of trash-d's primary goals is near compatibility with the standard **`rm`**
+One of trash-d's primary goals is near compatibility with the GNU **`rm(1)`**
 tool. The keyword here is "near". The goal is not exact flag-for-flag
 compatibility with **`rm`**, but you should be able to '`alias rm=trash`' and
-not notice the difference.
+not notice the difference. But since **`rm`** has different failure states and
+error messages it can never be 100% compatible.
 
-Because of this, **`trash`** will silently ignore unknown options.
+Additionally since there are a few different implementations of **`rm(1)`**
+(BSDs and so on) that are all subtly incompatible with each other I can't
+guarantee compatibility with all versions.
+
+Because of all this, **`trash`** will silently ignore unknown options.
 Be warned that this may be subject to change as **`trash`**'s compatibility
 with **`rm`** increases.
 
