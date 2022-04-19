@@ -35,7 +35,7 @@ Options
 **`-d`**, **`--dir`**
 : Remove empty directories.
 
-**`-r`**, **`--recursive`**
+**`-r`**, **`-R`**, **`--recursive`**
 : Delete directories and their contents.
 
 **`-v`**, **`--verbose`**
@@ -43,6 +43,9 @@ Options
 
 **`-i`**, **`--interactive`**
 : Ask before each deletion.
+
+**`-I`**, **`--interact-once`**
+: Ask before deleting 3 or more files, or deleting recursively
 
 **`-f`**, **`--force`**
 : Don't prompt and ignore errors.

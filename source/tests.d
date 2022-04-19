@@ -287,6 +287,8 @@ unittest {
    Trash from /tmp/
    On most systems (including mine) this is a separate tempfs so this test is
    for cross-filesystem trashing
+   But in the CI pipeline it is not a separate filesystem, so this has to be
+   tested locally for real results.
 */
 unittest {
     string testfile = "/tmp/test.file";

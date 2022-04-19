@@ -13,7 +13,7 @@ module trash.run;
 
 import trash.opts : OPTS, parseOpts;
 import trash.opers;
-import trash.util : createMissingFolders, err, log;
+import trash.util : createMissingFolders, err, log, prompt;
 import trash.ver : COPY_TEXT, VER_TEXT;
 
 import std.stdio : writefln;
@@ -66,6 +66,15 @@ int runCommands(string[] args) {
     if (args.length < 1) {
         err("missing operand");
         return 1;
+    }
+
+    // Prompt if deleting more than 3 things, or deleting recursively
+    // This could probably be smarter, but I like it this way
+    // because it will prompt more often.
+    if (OPTS.interact_once && (args.length > 3 || OPTS.recursive)) {
+        if (!prompt("remove %d arguments?", args.length)) {
+            return -1;
+        }
     }
 
     // Loop through the args, trashing each of them in turn
