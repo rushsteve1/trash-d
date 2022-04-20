@@ -102,9 +102,8 @@ Additionally since there are a few different implementations of **`rm(1)`**
 (BSDs and so on) that are all subtly incompatible with each other I can't
 guarantee compatibility with all versions.
 
-Because of all this, **`trash`** will silently ignore unknown options.
-Be warned that this may be subject to change as **`trash`**'s compatibility
-with **`rm`** increases.
+As of trash-d version 16 unknown options will throw an error. Prior to
+version 16 unknown options were silently ignored.
 
 ENVIRONMENT
 ===========
