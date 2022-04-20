@@ -18,24 +18,23 @@ jobs:
       with:
         compiler: ldc-latest
 
-    - name: Lint
-      run: dub lint
+    - name: Test
+      run: dub test --coverage --compiler=$DC
 
-    - name: Build & Test
+    - name: Build
       run: |
-        dub test --coverage --compiler=$DC
         dub build --build=release --compiler=$DC
         strip trash
 
     - name: Man Page with Pandoc
       run: "pandoc -s -t man -o trash.man MANUAL.md"
 
-    - name: Build Distro Packages
+    - name: Distro Packages
       run: |
         sudo gem install fpm
         ruby package.rb
 
-    - name: Upload a Build Artifact
+    - name: Upload Build Artifact
       uses: actions/upload-artifact@v2
       with:
         name: "trash-d"
