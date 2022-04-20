@@ -35,6 +35,10 @@ Simply drop the `trash` binary somewhere on your `$PATH` such as
 Optionally set `alias rm=trash` in your shell config to replace usages of `rm`
 with `trash-d`.
 
+Alternatively if there is a package for your OS should probably use that.
+
+[![Packaging status](https://repology.org/badge/vertical-allrepos/trash-d.svg)](https://repology.org/project/trash-d/versions)
+
 ## Usage
 
 Using `trash-d` is the same as most other command line utilities, and
