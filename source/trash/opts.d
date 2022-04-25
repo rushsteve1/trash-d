@@ -33,7 +33,7 @@ struct Opts {
     bool verbose;
     /// Ask before doing things
     bool interactive;
-    /// Ask once before deleting 3 or more things
+    /// Ask once before deleting more than 3 things
     bool interact_once;
     /// Should things be forced
     bool force;
@@ -125,12 +125,12 @@ int parseOpts(ref string[] args) {
         helpInfo = getopt(args,
                 // Allow flags to be bundled like -rf
                 std.getopt.config.bundling,
-		std.getopt.config.caseSensitive,
+                std.getopt.config.caseSensitive,
                 "dir|d", "Remove empty directories.", &OPTS.dir,
                 "recursive|r|R", "Delete directories and their contents.", &OPTS.recursive,
                 "verbose|v", "Print more information.", &OPTS.verbose,
                 "interactive|i", "Ask before each deletion.", &OPTS.interactive,
-		"interactive-once|I", "Ask once if deleting 3 or more", &OPTS.interact_once,
+                "interactive-once|I", "Ask once if deleting 3 or more", &OPTS.interact_once,
                 "force|f", "Don't prompt and ignore errors.", &OPTS.force,
                 "version", "Output the version and exit.", &OPTS.ver,
 
