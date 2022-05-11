@@ -25,7 +25,7 @@ You can install a pre-built statically-linked version (`x86_64-linux`) from the
 I gave a brief informal talk about this project and D at
 [DoomConf 2021](https://doomconf.netlify.app/)
 (recording is a bit messed up and only has half my talk) you can see also
-[the slides here](https://doomconf.netlify.app/rushsteve1/trash-d)
+[the slides here](https://doomconf.netlify.app/aug-2021/rushsteve1/trash-d)
 
 ### Installing
 
