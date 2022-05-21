@@ -419,8 +419,8 @@ unittest {
     // Deleting a file that doesn't exist
     assert(mini(["--rm", ne]) == 1);
 
-    // Unknown options should just be ignored
-    assert(mini(["--unknown"]) == 0);
+    // Unknown options should error out
+    assert(mini(["--unknown"]) == 1);
 
     // Cleanup
     scope (success)

@@ -144,6 +144,8 @@ int parseOpts(ref string[] args) {
         // dfmt on
     } catch (GetOptException e) {
         err(e.message());
+        // Stop execution on invalid arguments, such as an unrecognized flag
+        return 1;
     }
 
     // Handle requests for help text
