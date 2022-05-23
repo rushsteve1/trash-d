@@ -77,6 +77,7 @@ int runCommands(string[] args) {
         }
     }
 
+    int ret = 0;
     // Loop through the args, trashing each of them in turn
     foreach (string path; args) {
         // Arguments that start with a dash were unknown args
@@ -88,12 +89,11 @@ int runCommands(string[] args) {
 
         // If the path exists, delete trash the file
         // Handle the force --rm flag
-        int res;
-        res = trashOrRm(path);
+        int res = trashOrRm(path);
         if (res > 0)
-            return res;
+            ret = 1;
     }
 
     // Hooray, we made it all the way to the end!
-    return 0;
+    return ret;
 }
