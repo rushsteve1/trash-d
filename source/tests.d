@@ -24,8 +24,12 @@ const test_trash_dir = "test-trash";
 int mini(string[] args) {
     args = ["trash"] ~ args;
     const int res = parseOpts(args);
-    if (res != 0)
+    if (res == -1) {
+        // special return value meaning no failures but exit now
+        return 0;
+    } else if (res != 0) {
         return res;
+    }
 
     // Test for a nasty bug that came up
     assert(!(OPTS.trash_dir is null));
@@ -75,8 +79,8 @@ unittest {
     assert(OPTS.force);
     assert(OPTS.empty);
 
-    assert(mini(["--version"]) == -1);
-    assert(mini(["--help"]) == -1);
+    assert(mini(["--version"]) == 0);
+    assert(mini(["--help"]) == 0);
 }
 
 /**
