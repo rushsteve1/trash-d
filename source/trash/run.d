@@ -73,7 +73,7 @@ int runCommands(string[] args) {
     // because it will prompt more often.
     if (OPTS.interact_once && (args.length > 3 || OPTS.recursive)) {
         if (!prompt("remove %d arguments?", args.length)) {
-            return -1;
+            return 0;
         }
     }
 
