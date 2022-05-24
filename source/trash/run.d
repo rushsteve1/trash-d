@@ -79,13 +79,6 @@ int runCommands(string[] args) {
 
     // Loop through the args, trashing each of them in turn
     foreach (string path; args) {
-        // Arguments that start with a dash were unknown args
-        // that got passed through by getopt, so just ignore them
-        if (path.startsWith('-')) {
-            log("unknown option '%s'", path);
-            continue;
-        }
-
         // If the path exists, delete trash the file
         // Handle the force --rm flag
         int res;

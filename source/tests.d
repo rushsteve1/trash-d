@@ -38,6 +38,56 @@ int mini(string[] args) {
 }
 
 /**
+   Create a file with a given name, then trash it using args
+*/
+void assert_args_delete(string testfile, string[] args) {
+    // Write one file and trash it
+    testfile.write("hello");
+    auto tinfo = TrashFile(testfile, Clock.currTime());
+
+    // Yes this repeats the other test
+    // Doesn't hurt to test the main purpose of the program thrice
+    assert(mini(args) == 0);
+    assert(!testfile.exists());
+    assert(tinfo.file_path.exists());
+    assert(tinfo.info_path.exists());
+
+    // Cleanup
+    scope (success)
+        test_trash_dir.rmdirRecurse();
+}
+
+/**
+   Create multiple files, then trash them using args
+*/
+void assert_args_delete_multiple(string[] testfiles, string[] args) {
+    TrashFile[] tinfos = [];
+
+    // Write one file and trash it
+    foreach (string testfile ; testfiles) {
+        testfile.write("hello");
+        tinfos = tinfos ~ TrashFile(testfile, Clock.currTime());
+    }
+
+    // Yes this repeats the other test
+    // and it is going a bit overboard now
+    assert(mini(args) == 0);
+
+    foreach (string testfile ; testfiles) {
+        assert(!testfile.exists());
+    }
+
+    foreach (TrashFile tinfo ; tinfos) {
+        assert(tinfo.file_path.exists());
+        assert(tinfo.info_path.exists());
+    }
+
+    // Cleanup
+    scope (success)
+        test_trash_dir.rmdirRecurse();
+}
+
+/**
    Test the options parser to ensure that the right options are set when the
    flags are given
 */
@@ -284,6 +334,23 @@ unittest {
 }
 
 /**
+   Handle trashing filenames beginning with '-' 
+*/
+unittest {
+    assert_args_delete("testfile", ["testfile"]);
+    assert_args_delete("testfile", ["--", "testfile"]);
+    assert_args_delete("testfile", ["-f", "--", "testfile"]);
+    assert_args_delete("-z", ["--", "-z"]);
+    assert_args_delete("--z", ["--", "--z"]);
+    assert_args_delete("--xxx", ["--", "--xxx"]);
+    assert_args_delete_multiple(["-z", "--xx", "--xxx"], 
+                          ["--", "-z", "--xx", "--xxx"]);
+    assert_args_delete_multiple(["testfile", "--xxx"], 
+                                ["testfile", "-f", "--", "--xxx"]);
+}
+
+
+/**
    Trash from /tmp/
    On most systems (including mine) this is a separate tempfs so this test is
    for cross-filesystem trashing
@@ -419,8 +486,8 @@ unittest {
     // Deleting a file that doesn't exist
     assert(mini(["--rm", ne]) == 1);
 
-    // Unknown options should just be ignored
-    assert(mini(["--unknown"]) == 0);
+    // Unknown options should error out
+    assert(mini(["--unknown"]) == 1);
 
     // Cleanup
     scope (success)
