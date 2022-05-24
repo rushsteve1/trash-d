@@ -42,9 +42,8 @@ int trashOrRm(in string path) {
 
     // Check if the file is writeable and prompt the user the same way rm does
     if (!tfile.writeable && !OPTS.force) {
-        writef("%s: remove write-protected regular file '%s'? ", OPTS.prog_name, path);
-        const string input = stdin.readln().strip().toLower();
-        if (input != "y" && input != "yes")
+        bool confirmed = prompt("remove write-protected regular file '%s'", path);
+        if (! confirmed)
             return 0;
     }
 
