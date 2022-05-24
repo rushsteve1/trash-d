@@ -82,7 +82,7 @@ int runCommands(string[] args) {
     foreach (string path; args) {
         // If the path exists, delete trash the file
         // Handle the force --rm flag
-        int res = trashOrRm(path);
+        const int res = trashOrRm(path);
         if (res > 0)
             ret = 1;
     }

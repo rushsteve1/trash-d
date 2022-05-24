@@ -68,7 +68,7 @@ void assert_args_delete_multiple(string[] testfiles, string[] args) {
     TrashFile[] tinfos = [];
 
     // Write one file and trash it
-    foreach (string testfile ; testfiles) {
+    foreach (string testfile; testfiles) {
         testfile.write("hello");
         tinfos = tinfos ~ TrashFile(testfile, Clock.currTime());
     }
@@ -77,11 +77,11 @@ void assert_args_delete_multiple(string[] testfiles, string[] args) {
     // and it is going a bit overboard now
     assert(mini(args) == 0);
 
-    foreach (string testfile ; testfiles) {
+    foreach (string testfile; testfiles) {
         assert(!testfile.exists());
     }
 
-    foreach (TrashFile tinfo ; tinfos) {
+    foreach (TrashFile tinfo; tinfos) {
         assert(tinfo.file_path.exists());
         assert(tinfo.info_path.exists());
     }
@@ -370,12 +370,13 @@ unittest {
     assert_args_delete("-z", ["--", "-z"]);
     assert_args_delete("--z", ["--", "--z"]);
     assert_args_delete("--xxx", ["--", "--xxx"]);
-    assert_args_delete_multiple(["-z", "--xx", "--xxx"], 
-                          ["--", "-z", "--xx", "--xxx"]);
-    assert_args_delete_multiple(["testfile", "--xxx"], 
-                                ["testfile", "-f", "--", "--xxx"]);
+    assert_args_delete_multiple(["-z", "--xx", "--xxx"], [
+            "--", "-z", "--xx", "--xxx"
+            ]);
+    assert_args_delete_multiple(["testfile", "--xxx"], [
+            "testfile", "-f", "--", "--xxx"
+            ]);
 }
-
 
 /**
    Trash from /tmp/

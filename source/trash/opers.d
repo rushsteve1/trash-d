@@ -42,8 +42,8 @@ int trashOrRm(in string path) {
 
     // Check if the file is writeable and prompt the user the same way rm does
     if (!tfile.writeable && !OPTS.force) {
-        bool confirmed = prompt("remove write-protected regular file '%s'", path);
-        if (! confirmed)
+        const bool confirmed = prompt("remove write-protected regular file '%s'", path);
+        if (!confirmed)
             return 0;
     }
 
