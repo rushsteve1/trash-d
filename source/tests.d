@@ -169,6 +169,29 @@ unittest {
 }
 
 /**
+   Test that deletions continue after a failure
+*/
+unittest {
+    string testfile = "test.file";
+    testfile.write("hello");
+    assert(testfile.exists());
+    auto tinfo = TrashFile(testfile, Clock.currTime());
+    assert(tinfo.writeable);
+
+    // This should return non-zero,
+    // indicating that there was at least one error,
+    // but testfile should be trashed.
+    assert(mini(["does-not-exist", testfile]) != 0);
+    assert(!testfile.exists());
+    assert(tinfo.file_path.exists());
+    assert(tinfo.info_path.exists());
+
+    // Cleanup
+    scope (success)
+        test_trash_dir.rmdirRecurse();
+}
+
+/**
    Test the usecase of trashing an empty folder, including the failing case
    without the -d flag, and then permanently deleting the folder from the trash
 */
