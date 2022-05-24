@@ -152,7 +152,9 @@ int parseOpts(ref string[] args) {
     // This includes when no arguments are given
     if (helpInfo.helpWanted || arglen < 2) {
         // trash-d changes the formatting of the help text to be much nicer
-        string text = "Usage: \033[1mtrash [OPTIONS...] [FILES...]\033[0m\n";
+        string text = "Usage: \033[1m"
+                    ~ OPTS.prog_name
+                    ~ " [OPTIONS...] [FILES...]\033[0m\n";
         OutBuffer buf = new OutBuffer();
         defaultGetoptFormatter(buf, text, helpInfo.options, "\t%*s  %*s\t%*s%s\x0a");
         writefln("%s\n\n%s\n%s", VER_TEXT, buf, COPY_TEXT);
