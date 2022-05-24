@@ -47,7 +47,7 @@ int ferr(Char, A...)(in Char[] fmt, A args) {
    Prompts the user for a yes or no input, defaulting to no.
 */
 bool prompt(Char, A...)(in Char[] fmt, A args) {
-    writef("Are you sure you want to %s? [y/N] ", format(fmt, args));
+    writef(OPTS.prog_name ~ " : Are you sure you want to %s? [y/N] ", format(fmt, args));
     string input = stdin.readln().strip().toLower();
     return input == "y" || input == "yes";
 }
