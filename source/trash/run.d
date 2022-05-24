@@ -28,7 +28,7 @@ int runCommands(string[] args) {
     // Print the version number and return
     if (OPTS.ver) {
         writefln("\033[1m%s\033[0m\n\n%s", VER_TEXT, COPY_TEXT);
-        return -1;
+        return 0;
     }
 
     // Create missing folders if needed
