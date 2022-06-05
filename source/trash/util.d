@@ -93,15 +93,20 @@ void createMissingFolders() {
    the `src` and `tgt` paths are on different devices and cannot be renamed
    across. In that case perform a copy then remove, descending recursively if
    needed.
+   Symlinks are NOT followed
 */
 void renameOrCopy(in string src, in string tgt) {
+    if (src.isSymlink) {
+        log("%s is a symbolic link and will not be followed", src);
+    }
+
     try {
         src.rename(tgt);
     } catch (FileException e) {
         if (e.errno != EXDEV)
             throw e;
 
-        if (src.isFile) {
+        if (src.isFile || src.isSymlink) {
             src.copy(tgt);
             src.remove();
         } else if (src.isDir) {

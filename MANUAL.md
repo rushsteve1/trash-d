@@ -102,8 +102,10 @@ Additionally since there are a few different implementations of **`rm(1)`**
 (BSDs and so on) that are all subtly incompatible with each other I can't
 guarantee compatibility with all versions.
 
-As of trash-d version 16 unknown options will throw an error. Prior to
+As of version 16 unknown options will throw an error. Prior to
 version 16 unknown options were silently ignored.
+
+As of version 17 trash-d will not follow symlinks recursively.
 
 ENVIRONMENT
 ===========

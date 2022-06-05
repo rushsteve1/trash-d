@@ -7,11 +7,11 @@ module trash.ver;
 import std.format : format;
 
 /// trash-d is versioned sequentially starting at 1
-const int VER = 16;
+const int VER = 17;
 
 /// Ever major release is given a new name
 /// Names are based on video game bosses
-const string VER_NAME = "Mithrix";
+const string VER_NAME = "M. Bison";
 
 /// The full version string
 const string VER_TEXT = format("trash-d version %s '%s'", VER, VER_NAME);
