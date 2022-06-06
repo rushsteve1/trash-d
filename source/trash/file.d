@@ -52,7 +52,7 @@ struct TrashFile {
         orig_path = p.buildNormalizedPath().absolutePath();
         file_name = orig_path.baseName().chompPrefix(".");
 
-        if (orig_path.isDir() && orig_path.endsWith("/")) {
+        if (!orig_path.isSymlink && orig_path.isDir() && orig_path.endsWith("/")) {
             orig_path = orig_path.chop();
         }
 
@@ -78,7 +78,7 @@ struct TrashFile {
     /// Is the file at this location writeable according to `attr_orig`
     @property @safe bool writeable() const {
         uint attr_orig = 0;
-        if (orig_path.exists()) {
+        if (orig_path.exists() && !orig_path.isSymlink) {
             attr_orig = orig_path.getAttributes();
         } else if (orig_path.dirName.exists()) {
             attr_orig = orig_path.dirName.getAttributes();

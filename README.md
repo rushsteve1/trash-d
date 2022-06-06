@@ -67,6 +67,9 @@ and expanding support for other operating systems would be greatly appreciated!
 However keep in mind that this is a simple tool with a simple job, so it's never
 going to do *that* much.
 
+Patches are also accepted via email if that's more your jam,
+see [Contact below](#Contact) for more info.
+
 ## Version Numbers
 
 Versions of `trash-d` are numbered sequentially with a bump every time I change
@@ -96,3 +99,11 @@ You are free to use it for any purpose under the terms of that license.
 
 Unlike many of these, `trash-d` does not require an interpreter like Bash or
 Python, so is more easily portable to new systems.
+
+## Contact
+
+You can email me at <mailto:rushsteve1@rushsteve1.us> or open an issue here on
+GitHub if you need to reach me for whatever reason.
+
+We do not have a mailing list or anything of that sort, but there is an
+[ATOM feed of releases](https://github.com/rushsteve1/trash-d/releases.atom).

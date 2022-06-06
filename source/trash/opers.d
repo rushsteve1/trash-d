@@ -68,7 +68,7 @@ int trashOrRm(in string path) {
     tfile.info_path.append(tfile.infoString);
 
     // If this is a directory then write to the directorysizes file
-    if (tfile.file_path.isDir()) {
+    if (!tfile.file_path.isSymlink && tfile.file_path.isDir) {
         const ulong size = tfile.getSize();
         OPTS.dirsize_file.append(format("%s %s %s\n", size, now.toUnixTime(), tfile.file_name));
     }

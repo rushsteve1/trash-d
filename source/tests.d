@@ -139,6 +139,7 @@ unittest {
 unittest {
     string testfile = "test.file";
     testfile.write("hello");
+    // Remove in either case since it will be restored
     scope (exit)
         testfile.remove();
     assert(testfile.exists());
@@ -388,6 +389,7 @@ unittest {
 unittest {
     string testfile = "/tmp/test.file";
     testfile.write("hello");
+    // Remove in either case since it will be restored
     scope (exit)
         testfile.remove();
     assert(testfile.exists());
@@ -487,6 +489,72 @@ unittest {
 
     assert(mini(["--orphans"]) == 0);
     assert(testfile.exists());
+
+    // Cleanup
+    scope (success)
+        test_trash_dir.rmdirRecurse();
+}
+
+/**
+   Test that broken symlinks are removed properly
+*/
+unittest {
+    const string testfile = "test.file";
+    const string testlink = "test.link";
+    scope (failure) {
+        testlink.remove();
+        testfile.remove();
+    }
+
+    testfile.write("hello");
+    assert(testfile.exists());
+    assert(testfile.isFile);
+
+    symlink(testfile, testlink);
+    assert(testlink.exists());
+    assert(testlink.isSymlink);
+
+    assert(mini([testfile]) == 0);
+    assert(mini([testlink]) == 0);
+
+    // Cleanup
+    scope (success)
+        test_trash_dir.rmdirRecurse();
+}
+
+/**
+    Test removing symlinks to directories properly
+*/
+unittest {
+    const string testdir = "tdir";
+    const string testlink = "tdir.link";
+    scope (failure) {
+        testdir.rmdir();
+        testlink.remove();
+    }
+
+    testdir.mkdir();
+    assert(testdir.exists());
+    assert(testdir.isDir);
+
+    symlink(testdir, testlink);
+    assert(testlink.exists());
+    assert(testlink.isSymlink);
+
+    // These should fail, the slash is very important
+    assert(mini([testdir]) != 0);
+    assert(mini([testlink ~ "/"]) != 0);
+
+    // This should succeed without the slash
+    assert(mini([testlink]) == 0);
+
+    symlink(testdir, testlink);
+    assert(testlink.exists());
+    assert(testlink.isSymlink);
+
+    // This should succeed with the slash
+    assert(mini(["-r", testlink ~ "/"]) == 0);
+    assert(mini(["-r", testdir]) == 0);
 
     // Cleanup
     scope (success)

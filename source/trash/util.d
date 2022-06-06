@@ -10,7 +10,7 @@ import core.stdc.errno : EXDEV;
 import std.stdio : stderr, stdin, writef;
 import std.file;
 import std.format : format;
-import std.string : strip, toLower;
+import std.string : strip, toLower, endsWith, chop;
 import std.path : buildNormalizedPath, relativePath, absolutePath;
 
 /**
@@ -93,15 +93,17 @@ void createMissingFolders() {
    the `src` and `tgt` paths are on different devices and cannot be renamed
    across. In that case perform a copy then remove, descending recursively if
    needed.
-   Symlinks are NOT followed
+   Symlinks are NOT followed recursively
 */
 void renameOrCopy(in string src, in string tgt) {
-    if (src.isSymlink) {
-        log("%s is a symbolic link and will not be followed", src);
-    }
-
     try {
-        src.rename(tgt);
+        // Bit of an odd workaround to prevent recursive trashing
+        if (src.endsWith("/") && src.chop().isSymlink) {
+            log("'%s' is a symlink, it will not be followed", src);
+            src.chop.rename(tgt);
+        } else {
+            src.rename(tgt);
+        }
     } catch (FileException e) {
         if (e.errno != EXDEV)
             throw e;
@@ -129,7 +131,10 @@ void renameOrCopy(in string src, in string tgt) {
    wants the action to be allowable.
 */
 bool dirOk(in string path) {
-    if (!OPTS.recursive && path.isDir()) {
+    if (path.isSymlink) {
+        log("'%s' is a symbolic link to a directory", path);
+        return true;
+    } else if (!OPTS.recursive && path.isDir()) {
         if (OPTS.dir) {
             if (!path.dirEntries(SpanMode.shallow).empty) {
                 err("cannot remove '%s': Directory not empty", path);

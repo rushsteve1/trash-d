@@ -35,12 +35,20 @@ int main(string[] args) {
             return res;
     }
 
-    // Everything is wrapped in a single outermost try/catch block
-    // to make error handling much simpler.
-    try {
+    debug {
+        // ONLY IN DEBUG MODE
+
         return runCommands(args);
-    } catch (FileException e) {
-        err(e.message());
-        return 1;
+    } else {
+        // ONLY IN RELEASE MODE
+
+        // Everything is wrapped in a single outermost try/catch block
+        // to make error handling much simpler.
+        try {
+            return runCommands(args);
+        } catch (FileException e) {
+            err(e.message());
+            return 1;
+        }
     }
 }

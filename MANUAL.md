@@ -105,7 +105,9 @@ guarantee compatibility with all versions.
 As of version 16 unknown options will throw an error. Prior to
 version 16 unknown options were silently ignored.
 
-As of version 17 trash-d will not follow symlinks recursively.
+As of version 17 trash-d will not follow symlinks recursively through
+directories. This may in some cases be inconsistent with **`rm`** but errs on
+the side of not deleting your files.
 
 ENVIRONMENT
 ===========
