@@ -95,7 +95,7 @@ void createMissingFolders() {
    needed.
    Symlinks are NOT followed recursively
 */
-void renameOrCopy(in string src, in string tgt) {
+bool renameOrCopy(in string src, in string tgt) {
     try {
         // Bit of an odd workaround to prevent recursive trashing
         if (src.endsWith("/") && src.chop().isSymlink) {
@@ -120,9 +120,11 @@ void renameOrCopy(in string src, in string tgt) {
             }
             src.rmdir();
         } else {
-            err("path was neither file or directory");
+            err("'%s' is not a regular file and cannot be trashed across devices", src);
+            return false;
         }
     }
+    return true;
 }
 
 /**

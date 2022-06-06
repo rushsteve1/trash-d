@@ -62,7 +62,9 @@ int trashOrRm(in string path) {
     log("trashing: %s", tfile.orig_path);
 
     // Move the file to the trash files dir
-    path.renameOrCopy(tfile.file_path);
+    bool res = path.renameOrCopy(tfile.file_path);
+    if (!res)
+        return 1;
 
     // Write the .trashinfo file
     tfile.info_path.append(tfile.infoString);
