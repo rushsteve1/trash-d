@@ -16,6 +16,7 @@ import trash.opers;
 import trash.util : createMissingFolders, err, log, prompt;
 import trash.ver : COPY_TEXT, VER_TEXT;
 
+import std.file : FileException;
 import std.stdio : writefln;
 import std.string : startsWith;
 
@@ -80,11 +81,18 @@ int runCommands(string[] args) {
     int ret = 0;
     // Loop through the args, trashing each of them in turn
     foreach (string path; args) {
-        // If the path exists, delete trash the file
-        // Handle the force --rm flag
-        const int res = trashOrRm(path);
-        if (res > 0)
+        // wrap each argument in a try block,
+        // so that failing any one does not stop execution.
+        try {
+            // If the path exists, delete trash the file
+            // Handle the force --rm flag
+            const int res = trashOrRm(path);
+            if (res > 0)
+                ret = 1;
+        } catch (FileException e) {
+            err(e.message());
             ret = 1;
+        }
     }
 
     // Hooray, we made it all the way to the end!
