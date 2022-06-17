@@ -20,6 +20,9 @@
 # Executables
 *.exe
 
+# Bundler
+.vendor
+
 # DUB
 .dub
 docs.json
@@ -34,7 +37,9 @@ test.file
 test-dir/
 test-trash/
 
-# Built packages
-pkg/
+# Built files
+build/
 *.1
 *.man
+*.rpm
+*.deb

@@ -12,7 +12,7 @@ arch = `uname -m`.chomp
 
 targets = ["deb", "rpm"]
 
-outdir = "pkg/"
+outdir = ARGV.first
 FileUtils.mkdir_p(outdir)
 
 for target in targets do
@@ -29,8 +29,8 @@ for target in targets do
     --description '#{data["description"]}' \
     --url '#{data["homepage"]}' \
     --maintainer '#{data["authors"][0]}' \
-    trash=/usr/bin/trash \
-    trash.man=/usr/share/man/man1/trash.1
+    #{outdir}/trash=/usr/bin/trash \
+    #{outdir}/trash.man=/usr/share/man/man1/trash.1
   sh
 
   exit(1) if not system(cmd)

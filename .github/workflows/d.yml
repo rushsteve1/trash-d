@@ -13,43 +13,44 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - uses: r-lib/actions/setup-pandoc@v1
     - uses: dlang-community/setup-dlang@v1
       with:
         compiler: ldc-latest
 
     - name: Test
-      run: dub test --coverage --compiler=$DC
+      run: rake test:coverage
 
     - name: Build
-      run: |
-        dub build --build=release --compiler=$DC
-        strip trash
+      run: rake build:release:strip
 
-    - name: Man Page with Pandoc
-      run: "pandoc -s -t man -o trash.man MANUAL.md"
+    - name: Man Page with Ronn
+      run: |
+        sudo gem install ronn
+        rake manpage
 
     - name: Distro Packages
       run: |
         sudo gem install fpm
-        ruby package.rb
+        rake package
 
     - name: Upload Build Artifact
       uses: actions/upload-artifact@v2
       with:
         name: "trash-d"
         path: |
-              trash
-              trash.man
+          build/trash
+          build/trash.man
   
     - name: Upload Coverage Logs
       uses: actions/upload-artifact@v2
       with:
         name: "coverage-logs"
-        path: "*.lst"
+        path: "build/coverage/*.lst"
 
     - name: Upload Packages
       uses: actions/upload-artifact@v2
       with:
         name: "built-packages"
-        path: "pkg/*"
+        path: |
+          build/*.deb
+          build/*.rpm

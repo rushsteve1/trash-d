@@ -1,27 +1,15 @@
----
-title: TRASH-D
-section: 1
-header: User Manual
-footer: trash-d 14
-date: November 24, 2021
----
-
-NAME
-====
-
-trash-d - A near drop-in replacement for **`rm`** that uses the trash bin
+trash(1) -- A near drop-in replacement for `rm` that uses the trash bin
+=============================================================================
 
 **Note:** The name of this software is "trash-d" however its executable
 is simply called **`trash`**. This manual favors the latter, but the two
 should be considered interchangable.
 
-SYNOPSIS
-========
+## SYNOPSIS
 
 trash [_option_]... _file_...
 
-DESCRIPTION
-===========
+## DESCRIPTION
 
 A near drop-in replacement for **`rm`**(1) that uses the FreeDesktop trash bin.
 Written in the D programming language using only D's Phobos standard library.
@@ -29,8 +17,7 @@ Written in the D programming language using only D's Phobos standard library.
 The options and flags are intended to mirror **`rm`**'s closely, with some
 additional long options for the **`trash`** specific features.
 
-Options
--------
+### Options
 
 **`-d`**, **`--dir`**
 : Remove empty directories.
@@ -74,8 +61,7 @@ Options
 **`-h`**, **`--help`**
 : This help information.
 
-Precedence
-----------
+### Precedence
 
 The **`--help`**, **`--version`**, **`--list`**, **`--orphans`**,
 **`--restore`**, **`--delete`**, and **`--empty`** flags all cause the program
@@ -89,8 +75,7 @@ empty it.
 **Note:** Before version 11 trash-d followed a slightly incorrect precedence
 order.
 
-Compatibility with **`rm`**(1) 
-----------------------------
+### Compatibility with rm(1) 
 
 One of trash-d's primary goals is near compatibility with the GNU **`rm(1)`**
 tool. The keyword here is "near". The goal is not exact flag-for-flag
@@ -109,8 +94,7 @@ As of version 17 trash-d will not follow symlinks recursively through
 directories. This may in some cases be inconsistent with **`rm`** but errs on
 the side of not deleting your files.
 
-ENVIRONMENT
-===========
+## ENVIRONMENT
 
 **`XDG_DATA_HOME`**
 : This variable is used to determine where the default trash directory is for
@@ -120,8 +104,7 @@ ENVIRONMENT
 : Override the trash directory to the specified path, useful for trashing on
   removable devices.
 
-FILES
-=====
+## FILES
 
 **`$XDG_DATA_HOME/Trash`**
 : Standard location of trash files and metadata as per the FreeDesktop
@@ -131,18 +114,15 @@ FILES
 : The fallback path used in the absence of both **`$XDG_DATA_HOME`** and
   **`$TRASH_D_DIR`**.
 
-EXIT STATUS
-===========
+## EXIT STATUS
 
 **`trash`** exits with the status code 0 on success, and >0 if an error occurs.
 
-SEE ALSO
-========
+## SEE ALSO
 
 **`rm`**(1), **`user-dirs.conf`**(5)
 
-STANDARDS
-=========
+## STANDARDS
 
 By mimicking **rm** this utility is partially POSIX compliant however this is
 **NOT** to be relied upon for any purpose.
@@ -150,14 +130,12 @@ By mimicking **rm** this utility is partially POSIX compliant however this is
 trash-d is compliant with the FreeDesktop trash specification:
 https://specifications.freedesktop.org/trash-spec/trashspec-latest.html
 
-AUTHOR
-======
+## AUTHOR
 
 Steven vanZyl <rushsteve1@rushsteve1.us>
 
 The up-to-date sources can be found at: https://github.com/rushsteve1/trash-d
 
-BUGS
-====
+## BUGS
 
 https://github.com/rushsteve1/trash-d/issues

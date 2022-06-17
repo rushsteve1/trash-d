@@ -56,6 +56,23 @@ You can build it with Dub using `dub build` and run tests with `dub test`.
 
 CMake build files can be generated using `dub generate cmake`.
 
+### Using Rake
+
+`trash-d` uses Ruby and Rake for it's build tooling. These are technically
+optional and are not required to actually build the project, but make things
+easier. Use `rake -T` to list all the available tasks.
+
+To install all Ruby dependencies use
+```sh
+gem install --no-format-executable rake ronn fpm
+```
+
+Ruby is required to build the manual page from the markdown file
+using [Ronn](http://rtomayko.github.io/ronn/)
+and can easily be built with `rake manpage`.
+You may also need the `ruby-devel` and `rpmbuild` system packages.
+Install these from your distro's package manager.
+
 ## Contributing
 
 Contributions welcome! Please come help me clean up my D code, and otherwise
