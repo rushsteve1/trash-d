@@ -16,13 +16,14 @@
                 name = "trash-d";
                 src = self;
 
-                buildInputs = with pkgs; [
+                propagatedBuildInputs = with pkgs; [
                     (dmd.overrideAttrs (old : {
                         doCheck = false;
                     }))
                     gcc
                     rake
                     dub
+                    ronn
                 ];
 
                 buildPhase = "rake";
@@ -30,6 +31,8 @@
                 installPhase = ''
                     mkdir -p $out/bin
                     install -t $out/bin build/trash
+                    mkdir -p $out/man/man1
+                    ronn --roff --pipe MANUAL.md > $out/man/man1/trash.1
                 '';
             };
         }
