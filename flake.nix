@@ -1,8 +1,5 @@
 {
-    description = ''
-        A near drop-in replacement for rm that uses the FreeDesktop trash bin.
-        Written in the D programming language using only D's Phobos standard library, and can be compiled with any recent D compiler. This includes GCC, so `trash-d` should run on any *NIX platform that GCC supports.
-    '';
+    description = "A near drop-in replacement for rm that uses the FreeDesktop trash bin.";
 
     inputs = {
         nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
@@ -16,7 +13,7 @@
                 name = "trash-d";
                 src = self;
 
-                propagatedBuildInputs = with pkgs; [
+                buildInputs = with pkgs; [
                     (dmd.overrideAttrs (old : {
                         doCheck = false;
                     }))
@@ -26,11 +23,10 @@
                     ronn
                 ];
 
-                buildPhase = "rake";
+                buildPhase = "rake build:release";
 
                 installPhase = ''
-                    mkdir -p $out/bin
-                    install -t $out/bin build/trash
+                    install -D -t $out/bin build/trash
                     mkdir -p $out/man/man1
                     ronn --roff --pipe MANUAL.md > $out/man/man1/trash.1
                 '';
