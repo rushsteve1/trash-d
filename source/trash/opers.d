@@ -11,6 +11,7 @@ import trash.util;
 import core.time : hnsecs;
 import std.algorithm;
 import std.datetime.systime : Clock;
+import std.conv : to;
 import std.file;
 import std.format : format;
 import std.path : baseName, buildNormalizedPath, stripExtension;
@@ -62,7 +63,7 @@ int trashOrRm(in string path) {
     log("trashing: %s", tfile.orig_path);
 
     // Move the file to the trash files dir
-    bool res = path.renameOrCopy(tfile.file_path);
+    const bool res = path.renameOrCopy(tfile.file_path);
     if (!res)
         return 1;
 
@@ -205,7 +206,7 @@ int restoreOrDel(in string name, bool del) {
 
     // Write a new directorysizes file with the appropriate line removed
     dstring new_dirsize = File(OPTS.dirsize_file).byLine()
-        .filter!(l => !l.endsWith(tfile.file_name)).join('\n').array();
+        .filter!(l => !l.endsWith(tfile.file_name)).join('\n').array().to!dstring;
     File(OPTS.dirsize_file, "w").write(new_dirsize);
 
     return 0;
