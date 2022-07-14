@@ -66,11 +66,11 @@ easier. Use `rake -T` to list all the available tasks.
 
 To install all Ruby dependencies use
 ```sh
-gem install --no-format-executable rake ronn fpm
+gem install --no-format-executable rake ronn-ng fpm
 ```
 
 Ruby is required to build the manual page from the markdown file
-using [Ronn](http://rtomayko.github.io/ronn/)
+using [Ronn-ng](https://github.com/apjanke/ronn-ng)
 and can easily be built with `rake manpage`.
 You may also need the `ruby-devel` and `rpmbuild` system packages.
 Install these from your distro's package manager.

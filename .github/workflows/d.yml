@@ -25,7 +25,7 @@ jobs:
 
     - name: Man Page with Ronn
       run: |
-        sudo gem install ronn
+        sudo gem install ronn-ng
         rake manpage
 
     - name: Distro Packages
