@@ -7,7 +7,7 @@ module trash.ver;
 import std.format : format;
 
 /// trash-d is versioned sequentially starting at 1
-const int VER = 17;
+const int VER = version_from_json();
 
 /// Ever major release is given a new name
 /// Names are based on video game bosses
@@ -25,3 +25,9 @@ This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law.
 
 Written by Steven vanZyl <rushsteve1@rushsteve1.us>.";
+
+int version_from_json() {
+	import std.json, std.conv;
+
+	return import("dub.json").parseJSON()["version"].str.to!int;
+}

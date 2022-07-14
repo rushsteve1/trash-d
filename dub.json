@@ -2,7 +2,7 @@
 	"authors": ["Steven vanZyl <rushsteve1@rushsteve1.us>"],
 	"copyright": "Copyright © 2021, Steven vanZyl",
 	"description": "A near drop-in replacement for rm that uses the trash bin",
-	"version": "17",
+	"version": "18",
 	"license": "MIT",
 	"name": "trash-d",
 	"homepage": "https://github.com/rushsteve1/trash-d",
@@ -10,5 +10,6 @@
 	"targetType": "executable",
 	"targetPath": "./build",
 	"dflags": ["-preview=dip1000"],
-	"dflags-ldc": ["-static"]
+	"dflags-ldc": ["-static"],
+	"stringImportPaths": ["."]
 }
