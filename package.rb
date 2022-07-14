@@ -16,22 +16,22 @@ outdir = ARGV.first
 FileUtils.mkdir_p(outdir)
 
 for target in targets do
-  file = outdir + "trash-d-#{data["version"]}-1-#{arch}.#{target}"
-  cmd = <<-sh
-    fpm -f -s dir \
-    -t #{target} \
-    -p '#{file}' \
-    --no-depends \
-    --name '#{data["name"]}' \
-    --license '#{data["license"]}' \
-    --version '#{data["version"]}' \
-    --architecture '#{arch}' \
-    --description '#{data["description"]}' \
-    --url '#{data["homepage"]}' \
-    --maintainer '#{data["authors"][0]}' \
-    #{outdir}/trash=/usr/bin/trash \
-    #{outdir}/trash.man=/usr/share/man/man1/trash.1
-  sh
+	file = outdir + "trash-d-#{data["version"]}-1-#{arch}.#{target}"
+	cmd = <<-sh
+		fpm -f -s dir \
+		-t #{target} \
+		-p '#{file}' \
+		--no-depends \
+		--name '#{data["name"]}' \
+		--license '#{data["license"]}' \
+		--version '#{data["version"]}' \
+		--architecture '#{arch}' \
+		--description '#{data["description"]}' \
+		--url '#{data["homepage"]}' \
+		--maintainer '#{data["authors"][0]}' \
+		#{outdir}/trash=/usr/bin/trash \
+		#{outdir}/trash.man=/usr/share/man/man1/trash.1
+	sh
 
-  exit(1) if not system(cmd)
+	exit(1) if not system(cmd)
 end

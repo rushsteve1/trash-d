@@ -27,6 +27,8 @@ I gave a brief informal talk about this project and D at
 (recording is a bit messed up and only has half my talk) you can see also
 [the slides here](https://doomconf.netlify.app/aug-2021/rushsteve1/trash-d)
 
+There are also several [posts on the D forums](https://forum.dlang.org/search?q=&exact=trash-d&newthread=y) about `trash-d`, if you want to give those a read.
+
 ### Installing
 
 Simply drop the `trash` binary somewhere on your `$PATH` such as

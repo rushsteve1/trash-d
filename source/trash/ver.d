@@ -1,5 +1,5 @@
 /**
-   Version and copyright information that gets bundled in with trash-d
+Version and copyright information that gets bundled in with trash-d
 */
 
 module trash.ver;

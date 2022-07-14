@@ -4,12 +4,9 @@ root = true
 end_of_line = lf
 insert_final_newline = true
 charset = utf-8
-indent_style = space
+indent_style = tab
 indent_size = 4
 
 [*.d]
 dfmt_brace_style = otbs
 dfmt_align_switch_statements = false
-
-[Makefile]
-indent_style = tab
