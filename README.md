@@ -25,7 +25,9 @@ You can install a pre-built statically-linked version (`x86_64-linux`) from the
 I gave a brief informal talk about this project and D at
 [DoomConf 2021](https://doomconf.netlify.app/)
 (recording is a bit messed up and only has half my talk) you can see also
-[the slides here](https://doomconf.netlify.app/aug-2021/rushsteve1/trash-d)
+[the slides here](https://doomconf.netlify.app/aug-2021/rushsteve1/trash-d).
+I later re-wrote and updated/expanded on the presentation as
+[a blog post](https://repo.rushsteve1.us/wiki?name=Developing+trash-d).
 
 There are also several [posts on the D forums](https://forum.dlang.org/search?q=&exact=trash-d&newthread=y) about `trash-d`, if you want to give those a read.
 
