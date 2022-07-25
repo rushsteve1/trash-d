@@ -112,6 +112,7 @@ You are free to use it for any purpose under the terms of that license.
 
 - https://github.com/andreafrancia/trash-cli
 - https://github.com/sindresorhus/trash
+- https://github.com/theimpossibleastronaut/rmw/
 - https://github.com/alphapapa/rubbish.py
 - https://github.com/kaelzhang/shell-safe-rm
 - https://github.com/nateshmbhat/rm-trash
