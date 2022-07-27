@@ -65,7 +65,7 @@ jobs:
     - name: Install dependencies
       run: |
         brew update
-        brew install ldc dub
+        brew install ldc dub dmd
     - name: Test
       run: rake test:coverage
     - name: Build
