@@ -40,7 +40,7 @@ jobs:
         path: |
           build/trash
           build/trash.man
-  
+
     - name: Upload Coverage Logs
       uses: actions/upload-artifact@v2
       with:
@@ -54,3 +54,15 @@ jobs:
         path: |
           build/*.deb
           build/*.rpm
+
+  macos:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: dlang-community/setup-dlang@v1
+      with:
+        compiler: ldc-latest
+    - name: Test
+      run: rake test:coverage
+    - name: Build
+      run: rake build:release:strip
