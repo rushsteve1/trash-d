@@ -59,13 +59,9 @@ jobs:
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v3
-    #- uses: dlang-community/setup-dlang@v1
-      #with:
-        #compiler: ldc-latest
-    - name: Install dependencies
-      run: |
-        brew update
-        brew install ldc dub dmd
+    - uses: dlang-community/setup-dlang@v1
+      with:
+        compiler: ldc-latest
     - name: Test
       run: rake test:coverage
     - name: Build
