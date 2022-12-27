@@ -3,7 +3,7 @@ trash(1) -- A near drop-in replacement for `rm` that uses the trash bin
 
 **Note:** The name of this software is "trash-d" however its executable
 is simply called **`trash`**. This manual favors the latter, but the two
-should be considered interchangable.
+should be considered interchangeable.
 
 ## SYNOPSIS
 

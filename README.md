@@ -15,12 +15,17 @@ GCC supports.
 
 **ONLY LINUX AND BSD ARE CURRENTLY SUPPORTED!**
 
-Windows won't work at all, and MacOS probably won't either. Any POSIX and
-FreeDesktop compliant system should work fine. For rarer *NIXs like Solaris or
-AIX, you're on your own though. PRs for expanding support are very welcome!
+Windows won't work at all, ~~and MacOS probably won't either~~ (see note below). 
+Any POSIX and FreeDesktop compliant system should work fine. For rarer *NIXs like
+Solaris or AIX, you're on your own though. PRs for expanding support are very welcome!
 
 You can install a pre-built statically-linked version (`x86_64-linux`) from the
 [GitHub releases page](https://github.com/rushsteve1/trash-d/releases)
+
+**MacOS Note:** As of v18 MacOS is semi-supported. It builds and passes all tests
+on MacOS 13.1 (and likely will on most earlier versions too).
+However it still uses the FreeDesktop trash bin which is not "native" to MacOS.
+Contributions to improve this would be appreciated!
 
 I gave a brief informal talk about this project and D at
 [DoomConf 2021](https://doomconf.netlify.app/)
@@ -31,7 +36,12 @@ I later re-wrote and updated/expanded on the presentation as
 
 There are also several [posts on the D forums](https://forum.dlang.org/search?q=&exact=trash-d&newthread=y) about `trash-d`, if you want to give those a read.
 
-### Installing
+## Maintenance Status: Stable
+
+trash-d is reasonable stable and feature complete, so updates might be slow.
+But it is still maintained and bug reports are welcome!
+
+## Installing
 
 Simply drop the `trash` binary somewhere on your `$PATH` such as
 `$HOME/.local/bin`, or use the provided DEB and RPM packages.
@@ -118,6 +128,7 @@ You are free to use it for any purpose under the terms of that license.
 - https://github.com/nateshmbhat/rm-trash
 - https://github.com/PhrozenByte/rmtrash
 - https://github.com/icyphox/crap
+- https://github.com/ali-rantakari/trash
 
 Unlike many of these, `trash-d` does not require an interpreter like Bash or
 Python, so is more easily portable to new systems.
