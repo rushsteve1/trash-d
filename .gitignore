@@ -2,6 +2,7 @@
 .directory
 *.swp
 .vscode
+.DS_Store
 
 # Compiled Object files
 *.o

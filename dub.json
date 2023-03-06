@@ -1,8 +1,8 @@
 {
 	"authors": ["Steven vanZyl <rushsteve1@rushsteve1.us>"],
-	"copyright": "Copyright © 2022, Steven vanZyl",
+	"copyright": "Copyright © 2023, Steven vanZyl",
 	"description": "A near drop-in replacement for rm that uses the trash bin",
-	"version": "18",
+	"version": "19.0.0",
 	"versionName": "M. Bison",
 	"license": "MIT",
 	"name": "trash-d",
