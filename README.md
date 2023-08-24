@@ -1,10 +1,9 @@
 # trash-d
 
 [![License](https://img.shields.io/github/license/rushsteve1/trash-d)](https://github.com/rushsteve1/trash-d/blob/main/LICENSE)
-[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/rushsteve1/trash-d/D)](https://github.com/rushsteve1/trash-d/actions)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/rushsteve1/trash-d/d.yml?branch=main)](https://github.com/rushsteve1/trash-d/actions)
 [![GitHub last commit (branch)](https://img.shields.io/github/last-commit/rushsteve1/trash-d/main)](https://github.com/rushsteve1/trash-d/commits/main)
 [![GitHub tag (latest SemVer pre-release)](https://img.shields.io/github/v/tag/rushsteve1/trash-d?label=version)](https://github.com/rushsteve1/trash-d/releases)
-[![Lines of code](https://img.shields.io/tokei/lines/github/rushsteve1/trash-d)](https://github.com/rushsteve1/trash-d/pulse)
 
 A near drop-in replacement for `rm` that uses the
 [FreeDesktop trash bin](https://specifications.freedesktop.org/trash-spec/trashspec-latest.html).
@@ -44,14 +43,20 @@ But it is still maintained and bug reports are welcome!
 ## Installing
 
 Simply drop the `trash` binary somewhere on your `$PATH` such as
-`$HOME/.local/bin`, or use the provided DEB and RPM packages.
+`$HOME/.local/bin`, or use the provided DEB and RPM packages
+from the [releases page](https://github.com/rushsteve1/trash-d/releases).
+
+You can install on Mac or Linux using Homebrew with...
+```
+brew install rushsteve1/pkgs/trash-d
+```
+
+Alternatively if there is a package for your OS you should probably use that.
+
+[![Packaging status](https://repology.org/badge/vertical-allrepos/trash-d.svg)](https://repology.org/project/trash-d/versions)
 
 Optionally set `alias rm=trash` in your shell config to replace usages of `rm`
 with `trash-d`.
-
-Alternatively if there is a package for your OS should probably use that.
-
-[![Packaging status](https://repology.org/badge/vertical-allrepos/trash-d.svg)](https://repology.org/project/trash-d/versions)
 
 ## Usage
 
