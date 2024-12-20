@@ -12,8 +12,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - uses: dlang-community/setup-dlang@v1
+    - uses: actions/checkout@v4
+    - uses: dlang-community/setup-dlang@v2
       with:
         compiler: ldc-latest
 
@@ -34,7 +34,7 @@ jobs:
         rake package
 
     - name: Upload Build Artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: "trash-d"
         path: |
@@ -42,13 +42,13 @@ jobs:
           build/trash.man
   
     - name: Upload Coverage Logs
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: "coverage-logs"
         path: "build/coverage/*.lst"
 
     - name: Upload Packages
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: "built-packages"
         path: |
