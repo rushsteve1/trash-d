@@ -15,9 +15,11 @@ const string DUB_JSON = import("dub.json");
 /// trash-d is versioned sequentially starting at 1
 const int VER = version_from_json();
 
+// This was originally extracted from the JSON as well
+// but a Dub update didn't like that
 /// Ever major release is given a new name
 /// Names are based on video game bosses
-const string VER_NAME = version_name_from_json();
+const string VER_NAME = "M. Bison";
 
 /// The full version string
 const string VER_TEXT = format("trash-d version %s '%s'", VER, VER_NAME);
@@ -27,10 +29,6 @@ const string COPY_TEXT = copy_text_from_json();
 
 private int version_from_json() {
 	return DUB_JSON.parseJSON()["version"].str.split(".")[0].to!int;
-}
-
-private string version_name_from_json() {
-	return DUB_JSON.parseJSON()["versionName"].str;
 }
 
 private string copy_text_from_json() {
