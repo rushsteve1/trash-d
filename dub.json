@@ -9,7 +9,6 @@
 	"targetName": "trash",
 	"targetType": "executable",
 	"targetPath": "./build",
-	"dflags": ["-preview=dip1000"],
 	"dflags-linux-ldc": ["-static"],
 	"stringImportPaths": ["."]
 }
