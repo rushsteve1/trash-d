@@ -8,25 +8,25 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
+    - uses: extractions/setup-just@v2
     - uses: dlang-community/setup-dlang@v2
       with:
         compiler: ldc-latest
 
     - name: Test
-      run: rake test:coverage
+      run: just coverage
 
     - name: Build
-      run: rake build:release:strip
+      run: just release
 
-    - name: Man Page with Ronn
+    - name: Man Page with Scdoc
       run: |
-        sudo gem install ronn-ng
-        rake manpage
+        sudo apt install scdoc
+        just manpage
 
     - name: Distro Packages
       run: |
@@ -39,7 +39,7 @@ jobs:
         name: "trash-d"
         path: |
           build/trash
-          build/trash.man
+          build/trash.1
   
     - name: Upload Coverage Logs
       uses: actions/upload-artifact@v4

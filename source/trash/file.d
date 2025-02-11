@@ -36,7 +36,7 @@ struct TrashFile {
 	When given one string the constructor assumes that this is a file that is
 	already in the trash. It will then parse the matching `.trashinfo` file.
 	*/
-	this(in string n) {
+	@safe this(in string n) {
 		file_name = n;
 
 		if (exists(info_path)) {
@@ -48,7 +48,7 @@ struct TrashFile {
 	When given a string and a `SysTime` the constructor assumes that this is
 	a file that is about to be added to the trash bin.
 	*/
-	this(in string p, in SysTime now) {
+	@safe this(in string p, in SysTime now) {
 		orig_path = p.buildNormalizedPath().absolutePath();
 		file_name = orig_path.baseName().chompPrefix(".");
 
@@ -88,7 +88,7 @@ struct TrashFile {
 	}
 
 	/// Parses the related `.trashinfo` file, pulling the info from it
-	void parseInfo() {
+	@trusted void parseInfo() {
 		log("parsing trashinfo: %s", info_path);
 		string text = info_path.readText();
 		string d;
@@ -102,7 +102,7 @@ struct TrashFile {
 	}
 
 	/// Gets the size of the file or folder, walking through directories if needed
-	ulong getSize() const {
+	@trusted ulong getSize() const {
 		if (file_path.isDir()) {
 			return file_path.dirEntries(SpanMode.depth, false).filter!(e => e.isFile())
 				.map!(e => e.getSize())

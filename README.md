@@ -12,28 +12,25 @@ using only D's Phobos standard library, and can be compiled with any recent D
 compiler. This includes GCC, so `trash-d` should run on any *NIX platform that
 GCC supports.
 
+Said like "trashed".
+
 **ONLY LINUX AND BSD ARE CURRENTLY SUPPORTED!**
 
-Windows won't work at all, ~~and MacOS probably won't either~~ (see note below). 
+Windows won't work at all, ~~and MacOS probably won't either~~ (see note below).
 Any POSIX and FreeDesktop compliant system should work fine. For rarer *NIXs like
 Solaris or AIX, you're on your own though. PRs for expanding support are very welcome!
 
 You can install a pre-built statically-linked version (`x86_64-linux`) from the
 [GitHub releases page](https://github.com/rushsteve1/trash-d/releases)
 
-**MacOS Note:** As of v18 MacOS is semi-supported. It builds and passes all tests
-on MacOS 13.1 (and likely will on most earlier versions too).
+**MacOS Note:** As of v18 MacOS is semi-supported. It builds and passes all
+tests on MacOS 13.1 (and likely will on most earlier versions too).
 However it still uses the FreeDesktop trash bin which is not "native" to MacOS.
 Contributions to improve this would be appreciated!
 
-I gave a brief informal talk about this project and D at
-[DoomConf 2021](https://doomconf.netlify.app/)
-(recording is a bit messed up and only has half my talk) you can see also
-[the slides here](https://doomconf.netlify.app/aug-2021/rushsteve1/trash-d).
-I later re-wrote and updated/expanded on the presentation as
-[a blog post](https://repo.rushsteve1.us/wiki?name=Developing+trash-d).
-
-There are also several [posts on the D forums](https://forum.dlang.org/search?q=&exact=trash-d&newthread=y) about `trash-d`, if you want to give those a read.
+There are also several
+[posts on the D forums](https://forum.dlang.org/search?q=&exact=trash-d&newthread=y)
+about `trash-d`, if you want to give those a read.
 
 ## Maintenance Status: Stable
 
@@ -63,7 +60,7 @@ with `trash-d`.
 Using `trash-d` is the same as most other command line utilities, and
 intentionally very similar to `rm`.
 
-See the [manual for more information](./MANUAL.md).
+See the [manual for more information](./MANUAL.scd).
 
 ## Building
 
@@ -75,22 +72,23 @@ You can build it with Dub using `dub build` and run tests with `dub test`.
 
 CMake build files can be generated using `dub generate cmake`.
 
-### Using Rake
+### Using Just
 
-`trash-d` uses Ruby and Rake for it's build tooling. These are technically
-optional and are not required to actually build the project, but make things
-easier. Use `rake -T` to list all the available tasks.
+`trash-d` uses
+[Just](https://just.systems)
+for it's build tooling. This is technically optional and is not required to
+actually build the project (only D compiler is), but make things easier.
+Use `just` to list all the available tasks.
 
-To install all Ruby dependencies use
-```sh
-gem install --no-format-executable rake ronn-ng fpm
-```
+[scdoc](https://git.sr.ht/~sircmpwn/scdoc)
+is required to build the manual page file,
+and can easily be built with `just manpage`.
 
-Ruby is required to build the manual page from the markdown file
-using [Ronn-ng](https://github.com/apjanke/ronn-ng)
-and can easily be built with `rake manpage`.
-You may also need the `ruby-devel` and `rpmbuild` system packages.
-Install these from your distro's package manager.
+### Packaging
+
+Packages are built using
+[nFPM](https://nfpm.goreleaser.com) and requires the
+[`jq` tool](https://jqlang.org).
 
 ## Contributing
 

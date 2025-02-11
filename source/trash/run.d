@@ -25,7 +25,7 @@ Given the remaining string arguments and the global `OPTS` struct, runs the
 given commands. In other words, this function wraps around all the real
 operations and acts as a secondary entrypoint that `main()` can `try`.
 */
-int runCommands(string[] args) {
+@safe int runCommands(string[] args) {
 	// Print the version number and return
 	if (OPTS.ver) {
 		writefln("\033[1m%s\033[0m\n\n%s", VER_TEXT, COPY_TEXT);

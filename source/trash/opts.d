@@ -94,7 +94,7 @@ static Opts OPTS;
 /**
 Parses the command line options into the `OPTS` global struct using D's built-in `getopt` parser
 */
-int parseOpts(ref string[] args) {
+@safe int parseOpts(ref string[] args) {
 	// Hang on the the unparsed argument length
 	const ulong arglen = args.length;
 

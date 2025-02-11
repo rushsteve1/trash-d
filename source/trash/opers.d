@@ -24,7 +24,7 @@ Depending on the value of OPTS.rm this either sends the file/folder at the
 given path to the trash or permanently deletes it.
 This was originally 2 functions but they were overly similar
 */
-int trashOrRm(in string path) {
+@safe int trashOrRm(in string path) {
 	if (!exists(path)) {
 		return ferr("cannot delete '%s': No such file or directory", path);
 	}
@@ -83,7 +83,7 @@ int trashOrRm(in string path) {
 Given the `--empty` flag this deletes the trash folders.
 Always prompts the user first unless `--force` is given
 */
-void empty() {
+@safe void empty() {
 	// Only prompt the user if the --force flag wasn't given
 	if (OPTS.force || prompt("empty the trash bin")) {
 		log("deleting folder: %s", OPTS.files_dir);
@@ -106,7 +106,7 @@ void empty() {
 Prints out a files in the trash with their name, original path, and deletion
 date as a tab-separated table
 */
-void list() {
+@trusted void list() {
 	// The Freedesktop spec specifies that the files in the info folder, not the
 	// files, folder defines what's in the trash bin.
 	// This can lead to some odd cases, but --empty should handle them.
@@ -141,7 +141,7 @@ List out the files that are in the trash bin but do not have matching
 .trashinfo files so would not show up in --list.
 These can be secretly lurking files that are wasting space
 */
-void orphans() {
+@trusted void orphans() {
 	const auto files = OPTS.files_dir.dirEntries(SpanMode.shallow).array();
 
 	// If the trash is empty then say so
@@ -165,7 +165,7 @@ single file from the trash bin, or restores a file from the trash bin to its
 original path.
 This was originally 2 functions but they were overly similar
 */
-int restoreOrDel(in string name, bool del) {
+@trusted int restoreOrDel(in string name, bool del) {
 	// Make a string holding the name of the operation
 	string opstr = (del) ? "permanently delete" : "restore";
 

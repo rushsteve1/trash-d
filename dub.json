@@ -1,8 +1,9 @@
 {
 	"authors": ["Steven vanZyl <rushsteve1@rushsteve1.us>"],
-	"copyright": "Copyright © 2023, Steven vanZyl",
+	"copyright": "Copyright © 2023-2025, Steven vanZyl",
 	"description": "A near drop-in replacement for rm that uses the trash bin",
-	"version": "19.0.0",
+	"version": "20.0.0",
+	"versionName": "Annette Birkin",
 	"license": "MIT",
 	"name": "trash-d",
 	"homepage": "https://github.com/rushsteve1/trash-d",
