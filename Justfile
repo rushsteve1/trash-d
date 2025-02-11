@@ -4,7 +4,7 @@ default:
 	@just --list
 
 all:
-	just release manpage package
+	just release manpage
 
 build:
 	dub build
@@ -23,7 +23,7 @@ test:
 coverage:
 	mkdir -p {{build_dir}}/coverage
 	dub test --coverage
-	mv *.lst {build_dir}}/coverage
+	mv *.lst {{build_dir}}/coverage
 
 lint:
 	dub lint
