@@ -127,11 +127,11 @@ The fallback path used in the absence of both *$XDG_DATA_HOME* and
 
 # STANDARDS
 
-By mimicking *rm* this utility is partially POSIX compliant however this is
-*NOT* to be relied upon for any purpose.
-
 trash-d is compliant with the FreeDesktop trash specification:
 https://specifications.freedesktop.org/trash-spec/trashspec-latest.html
+
+By mimicking *rm* this utility is partially POSIX compliant.
+However this is *NOT* to be relied upon for any purpose.
 
 # AUTHOR
 
