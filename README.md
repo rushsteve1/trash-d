@@ -67,17 +67,17 @@ You can build it with Dub using `dub build` and run tests with `dub test`.
 
 CMake build files can be generated using `dub generate cmake`.
 
-### Using Just
+### Using Mise
 
-`trash-d` uses
-[Just](https://just.systems)
-for its build tooling. This is technically optional and is not required to
-actually build the project (only D compiler is) but makes things easier.
-Use `just` to list all the available tasks.
+`trash-d` uses [Mise-en-Place](https://mise.jdx.dev)
+for its build tooling. This is completely optional and is not required to
+actually build the project (only a D compiler is) but makes things easier.
+Use `mise run` to list all the available tasks.
 
 [scdoc](https://git.sr.ht/~sircmpwn/scdoc)
-is required to build the manual page file,
-and can easily be built with `just manpage`.
+is required to build the manual page.
+A Mise plugin is provided that can build and install scdoc for you,
+use `mise plugin link scdoc` to activate it.
 
 ## Contributing
 

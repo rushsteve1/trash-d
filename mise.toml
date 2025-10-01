@@ -1,0 +1,24 @@
+[tools."github:ldc-developers/ldc"]
+version = "latest"
+bin_path = "bin"
+strip_components = 1
+
+[tasks]
+build = "dub build"
+test = ["dub lint", "dub test"]
+coverage = [
+  "dub test --coverage",
+  "mkdir -p build/coverage",
+  "mv *.lst build/coverage",
+]
+release = ["dub build --build=release", "strip build/trash"]
+clean = ["dub clean", "rm -r build"]
+
+[tasks.format]
+alias = "fmt"
+run = "dub run dfmt -- -i source/**/*.d"
+
+# To use first run `mise plugin link scdoc`
+[tasks.manpage]
+tools = { "scdoc" = "latest" }
+run = "scdoc < MANUAL.scd > build/trash.1"

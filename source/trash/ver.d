@@ -5,8 +5,8 @@ Version and copyright information that gets bundled in with trash-d
 module trash.ver;
 
 import std.array;
-import std.conv: to;
-import std.format: format;
+import std.conv : to;
+import std.format : format;
 import std.json;
 
 /// The dub.json file inlined as a string
@@ -30,7 +30,8 @@ const string VER_NAME = version_name_from_json();
 }
 
 /// The full version string
-const string VER_TEXT = format("trash-d version %s '%s'\nBuilt at %s with %s", VER, VER_NAME, __TIMESTAMP__, __VENDOR__);
+const string VER_TEXT = format("trash-d version %s '%s'\nBuilt at %s with %s",
+		VER, VER_NAME, __TIMESTAMP__, __VENDOR__);
 
 /// The short copyright text and info
 const string COPY_TEXT = copy_text_from_json();
@@ -51,5 +52,5 @@ This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law.
 
 Written by %s.", j["copyright"].str, j["license"].str, j["license"].str,
-	j["homepage"].str, authors);
+			j["homepage"].str, authors);
 }

@@ -1,0 +1,46 @@
+name: ci
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    tags: ["*"]
+    branches: ["main"]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: jdx/mise-action@v2
+
+      - name: Test
+        run: mise run coverage
+
+      - name: Release Build
+        run: mise run release
+
+      # Doesn't work on GH Actions, does sr.ht block them?
+      # - name: Man Page with Scdoc
+      #   run: |
+      #     mise plugin link scdoc
+      #     mise run manpage
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: "trash-d"
+          path: |
+            build/trash
+            build/trash.1
+
+      - name: Upload Coverage Logs
+        uses: actions/upload-artifact@v4
+        with:
+          name: "coverage-logs"
+          path: "build/coverage/*.lst"

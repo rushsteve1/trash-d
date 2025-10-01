@@ -9,7 +9,7 @@
 	"homepage": "https://github.com/rushsteve1/trash-d",
 	"targetName": "trash",
 	"targetType": "executable",
-	"targetPath": "./build",
+	"targetPath": "build",
 	"dflags-linux-ldc": ["-static"],
 	"stringImportPaths": ["."]
 }
