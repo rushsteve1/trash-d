@@ -61,9 +61,7 @@ operations and acts as a secondary entrypoint that `main()` can `try`.
 		return 0;
 	}
 
-	// Remove the first argument, ie the program name
 	// Then make sure at least 1 file was specified
-	args = args[1 .. $];
 	if (args.length < 1) {
 		err("missing operand");
 		return 1;
@@ -81,17 +79,24 @@ operations and acts as a secondary entrypoint that `main()` can `try`.
 	int ret = 0;
 	// Loop through the args, trashing each of them in turn
 	foreach (string path; args) {
-		// wrap each argument in a try block,
-		// so that failing any one does not stop execution.
-		try {
-			// If the path exists, delete trash the file
-			// Handle the force --rm flag
+		// https://dlang.org/spec/version.html
+		debug {
 			const int res = trashOrRm(path);
 			if (res > 0)
 				ret = 1;
-		} catch (FileException e) {
-			err(e.message());
-			ret = 1;
+		} else {
+			// wrap each argument in a try block,
+			// so that failing any one does not stop execution.
+			try {
+				// If the path exists, delete trash the file
+				// Handle the force --rm flag
+				const int res = trashOrRm(path);
+				if (res > 0)
+					ret = 1;
+			} catch (FileException e) {
+				err(e.message());
+				ret = 1;
+			}
 		}
 	}
 

@@ -5,7 +5,7 @@ TrashFile structure which handles information related to a file in the trash
 module trash.file;
 
 import trash.opts : OPTS;
-import trash.util : log;
+import trash.util : log, err;
 
 import core.sys.posix.sys.stat : S_IWUSR;
 import std.algorithm : filter, map, sum;
@@ -37,10 +37,12 @@ struct TrashFile {
 	already in the trash. It will then parse the matching `.trashinfo` file.
 	*/
 	@safe this(in string n) {
-		file_name = n;
+		file_name = n.baseName();
 
 		if (exists(info_path)) {
 			parseInfo();
+		} else {
+			err("no info file: '%s'", info_path);
 		}
 	}
 

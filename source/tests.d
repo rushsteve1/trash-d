@@ -5,6 +5,7 @@ Integration tests for trash-d
 import trash.run : runCommands;
 import trash.opts : OPTS, parseOpts;
 import trash.file : TrashFile;
+import trash.util : log;
 
 import std.file;
 import std.path;
@@ -36,7 +37,9 @@ int mini(string[] args) {
 
 	// Enable verbosity and change the trash directory for testing
 	OPTS.verbose = true;
-	OPTS.trash_dir = test_trash_dir;
+	OPTS.trash_dir = test_trash_dir.absolutePath();
+
+	log("test trash dir: %s", OPTS.trash_dir);
 
 	return runCommands(args);
 }
@@ -247,7 +250,7 @@ unittest {
 }
 
 /**
-Test recursively trashing a folder then emptying the trash
+Test recursively trashing a non-empty folder then emptying the trash
 */
 unittest {
 	string testdir = "test-dir/";
@@ -474,7 +477,7 @@ unittest {
 }
 
 /**
-Test the orpahans command which lists files without trashinfos
+Test the orphans command which lists files without trashinfos
 */
 unittest {
 	// Run a command so that the trash directory is created
@@ -555,6 +558,44 @@ unittest {
 	// This should succeed with the slash
 	assert(mini(["-r", testlink ~ "/"]) == 0);
 	assert(mini(["-r", testdir]) == 0);
+
+	// Cleanup
+	scope (success)
+		test_trash_dir.rmdirRecurse();
+}
+
+/**
+Restoring to a folder that does not exist
+*/
+unittest {
+	string testdir = "test-dir/";
+	testdir.mkdir();
+	scope (exit)
+		testdir.rmdirRecurse();
+	assert(testdir.exists());
+	auto tinfo = TrashFile(testdir, Clock.currTime());
+
+	string testfile = testdir ~ "/test.file";
+	testfile.write("hello");
+	assert(testfile.exists());
+
+	// Should work, deleting the file
+	assert(mini([testfile]) == 0);
+	assert(!testfile.exists());
+
+	// Delete the directory to restore to
+	testdir.rmdir();
+	assert(!testdir.exists());
+
+	// Should fail with an error message
+	assert(mini(["--restore", testfile]) == 1);
+	assert(!testdir.exists());
+	assert(!testfile.exists());
+
+	// Should now succeed
+	assert(mini(["--restore", "-r", testfile]) == 0);
+	assert(testdir.exists());
+	assert(testfile.exists());
 
 	// Cleanup
 	scope (success)

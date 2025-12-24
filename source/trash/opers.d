@@ -14,7 +14,7 @@ import std.datetime.systime : Clock;
 import std.conv : to;
 import std.file;
 import std.format : format;
-import std.path : baseName, buildNormalizedPath, stripExtension;
+import std.path : baseName, buildNormalizedPath, dirName, stripExtension;
 import std.range : array;
 import std.stdio;
 import std.string;
@@ -52,11 +52,7 @@ This was originally 2 functions but they were overly similar
 	// Otherwise continue on with the regular trashing
 	if (OPTS.rm) {
 		log("deleting: %s", path);
-		if (path.isDir()) {
-			path.rmdirRecurse();
-		} else {
-			path.remove();
-		}
+		path.removeRecurse();
 		return 0;
 	}
 
@@ -184,23 +180,36 @@ This was originally 2 functions but they were overly similar
 
 	log("%s : %s", opstr.chop() ~ "ing", name);
 
+	// https://github.com/rushsteve1/trash-d/issues/36
+	const orig_dir = tfile.orig_path.dirName();
+	if (!orig_dir.exists()) {
+		if (OPTS.recursive) {
+			orig_dir.mkdirRecurse();
+		} else {
+			return ferr("cannot restore '%s': Restore directory '%s' does not exist",
+					name, orig_dir);
+		}
+	}
+
 	// Make sure to warn the user when restoring over another file
 	if (!del && tfile.orig_path.exists() && !OPTS.force) {
-		if (!prompt("you want to overwrite the existing file at %s?", tfile.orig_path)) {
+		if (!prompt("overwrite the existing file at '%s'?", tfile.orig_path)) {
 			return 0;
 		}
 	}
 
 	// If del is on, delete otherwise restore
 	if (del) {
-		tfile.file_path.remove();
+		// Recursively trash directories
+		// https://github.com/rushsteve1/trash-d/issues/35
+		tfile.file_path.removeRecurse();
 	} else {
 		// If the original desination is writeable
-		if (tfile.writeable
-				|| prompt("%s is write protected, attempt restore anyway?", tfile.orig_path)) {
+		if (tfile.writeable || prompt("restore the write protected file '%s'?", tfile.orig_path)) {
 			tfile.file_path.renameOrCopy(tfile.orig_path);
 		}
 	}
+
 	// Always remove the trashinfo file
 	tfile.info_path.remove();
 

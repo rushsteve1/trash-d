@@ -88,6 +88,14 @@ Creates the trash directory folders if they are missing
 	}
 }
 
+@trusted void removeRecurse(in string src) {
+	if (src.isDir() && src.dirOk()) {
+		src.rmdirRecurse();
+	} else {
+		src.remove();
+	}
+}
+
 /**
 Attempts to rename a file `src` to `tgt`, but if that fails with `EXDEV` then
 the `src` and `tgt` paths are on different devices and cannot be renamed
@@ -110,7 +118,7 @@ Symlinks are NOT followed recursively
 
 		if (src.isFile || src.isSymlink) {
 			src.copy(tgt);
-			src.remove();
+			src.removeRecurse();
 		} else if (src.isDir) {
 			tgt.mkdir();
 			foreach (string name; src.dirEntries(SpanMode.shallow)) {

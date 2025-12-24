@@ -7,10 +7,12 @@ module trash.opts;
 import trash.ver : COPY_TEXT, VER_TEXT;
 import trash.util : log, err;
 
+import std.algorithm : map;
 import std.getopt;
 import std.outbuffer : OutBuffer;
 import std.path : absolutePath, buildPath, expandTilde;
 import std.process : environment;
+import std.range;
 import std.stdio : writefln;
 
 /**
@@ -18,7 +20,7 @@ The parsed command line options. Each field maps to a command line option or
 environment variable
 */
 struct Opts {
-	/// The program's name, `args[0]`. Not a CLI option
+	/// The program's name `args[0]`. Not a CLI option
 	string prog_name = "trash";
 
 	/// The directory to use for trash. Not a CLI option
@@ -83,6 +85,8 @@ struct Opts {
 		OPTS.orphans = false;
 		OPTS.empty = false;
 		OPTS.rm = false;
+
+		// Rely on the GC to free here
 		OPTS.restore = null;
 		OPTS.del = null;
 	}
@@ -105,19 +109,6 @@ Parses the command line options into the `OPTS` global struct using D's built-in
 	// Set the program name to arg zero so that aliasing to rm causes is better
 	OPTS.prog_name = args[0];
 
-	// Figure out where the trash dir is based on env variables
-	OPTS.trash_dir = environment.get("TRASH_D_DIR");
-	if (OPTS.trash_dir is null) {
-		// Get the correct XDG directory
-		string data_home = environment.get("XDG_DATA_HOME");
-		if (data_home is null) {
-			data_home = expandTilde("~/.local/share");
-		}
-		// Set the trash dir option
-		OPTS.trash_dir = data_home.buildPath("Trash").absolutePath();
-		log("trash directory: %s", OPTS.trash_dir);
-	}
-
 	// Parse CLI options using D's getopt
 	GetoptResult helpInfo;
 	try {
@@ -130,7 +121,7 @@ Parses the command line options into the `OPTS` global struct using D's built-in
 			"recursive|r|R", "Delete directories and their contents.", &OPTS.recursive,
 			"verbose|v", "Print more information.", &OPTS.verbose,
 			"interactive|i", "Ask before each deletion.", &OPTS.interactive,
-			"interactive-once|I", "Ask once if deleting 3 or more", &OPTS.interact_once,
+			"interact-once|I", "Ask once if deleting 3 or more", &OPTS.interact_once,
 			"force|f", "Don't prompt and ignore errors.", &OPTS.force,
 			"version", "Output the version and exit.", &OPTS.ver,
 
@@ -146,6 +137,25 @@ Parses the command line options into the `OPTS` global struct using D's built-in
 		err(e.message());
 		// Stop execution on invalid arguments, such as an unrecognized flag
 		return 1;
+	}
+
+	debug {
+		OPTS.verbose = true;
+		log("Running in debug mode, verbose is forced on");
+	}
+
+	// Figure out where the trash dir is based on env variables
+	OPTS.trash_dir = environment.get("TRASH_D_DIR");
+	if (OPTS.trash_dir is null) {
+		// Get the correct XDG directory
+		string data_home = environment.get("XDG_DATA_HOME");
+		if (data_home is null) {
+			data_home = expandTilde("~/.local/share");
+			log("XDG_DATA_HOME not set, using %s", data_home);
+		}
+		// Set the trash dir option
+		OPTS.trash_dir = data_home.buildPath("Trash").absolutePath();
+		log("trash directory: %s", OPTS.trash_dir);
 	}
 
 	// Handle requests for help text
@@ -164,6 +174,14 @@ Parses the command line options into the `OPTS` global struct using D's built-in
 		// -1 means "stop program and with status code 0"
 		return -1;
 	}
+
+	// Ensure all paths are absolute
+	OPTS.trash_dir = OPTS.trash_dir.absolutePath();
+	OPTS.del = OPTS.del.absolutePath();
+	OPTS.restore = OPTS.restore.absolutePath();
+	// This also strips out the arg[0] program name
+	args = args.drop(1).map!(p => p.absolutePath).array;
+	log("Normalized paths: del='%s' restore='%s' args=%s", OPTS.del, OPTS.restore, args);
 
 	return 0;
 }
