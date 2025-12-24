@@ -19,8 +19,7 @@ int main(string[] args) {
 	// Parse the command line options
 	const int res = parseOpts(args);
 	switch (res) {
-		case 0:
-			break;
+		case 0: break;
 		case -1:
 			// This is a special case where the options parsing wants to stop
 			// execution but there was no error

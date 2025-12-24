@@ -15,9 +15,9 @@ trash [_option_]... _file_...
 # DESCRIPTION
 
 A near drop-in replacement for *rm*(1) that uses the FreeDesktop trash bin.
-Written in the D programming language using only D's Phobos standard library.
+Written in the D programming language using only D\'s Phobos standard library.
 
-The options and flags are intended to mirror *rm*'s closely, with some
+The options and flags are intended to mirror *rm(1)* closely, with some
 additional long options for the *trash* specific features.
 
 ## Options
@@ -27,6 +27,7 @@ additional long options for the *trash* specific features.
 
 *-r*, *-R*, *--recursive*
 : Delete directories and their contents.
+When used with *--restore* creates parent directories.
 
 *-v*, *--verbose*
 : Print more information.
@@ -38,7 +39,7 @@ additional long options for the *trash* specific features.
 : Ask before deleting 3 or more files, or deleting recursively
 
 *-f*, *--force*
-: Don't prompt and ignore errors.
+: Don\'t prompt and ignore errors.
 
 *--version*
 : Output the version and exit.
@@ -72,7 +73,7 @@ to short-circuit and perform only that operation and no others. Their
 precedence is in that order exactly, and is intended to cause the least
 destruction.
 
-Therefore the command '`trash --empty --list`' will list the trash bin and NOT
+Therefore the command *trash --empty --list* will list the trash bin and NOT
 empty it.
 
 *Note:* Before version 11 trash-d followed a slightly incorrect precedence
@@ -82,7 +83,7 @@ order.
 
 One of trash-d's primary goals is near compatibility with the GNU *rm(1)*
 tool. The keyword here is "near". The goal is not exact flag-for-flag
-compatibility with *rm*, but you should be able to '`alias rm=trash`' and
+compatibility with *rm*, but you should be able to *alias rm=trash* and
 not notice the difference. But since *rm* has different failure states and
 error messages it can never be 100% compatible.
 
@@ -128,9 +129,9 @@ The fallback path used in the absence of both *$XDG_DATA_HOME* and
 # STANDARDS
 
 trash-d is compliant with the FreeDesktop trash specification:
-https://specifications.freedesktop.org/trash-spec/trashspec-latest.html
+https://specifications.freedesktop.org/trash/latest/
 
-By mimicking *rm* this utility is partially POSIX compliant.
+By mimicking *rm(1)* this utility is partially POSIX compliant.
 However this is *NOT* to be relied upon for any purpose.
 
 # AUTHOR

@@ -1,14 +1,14 @@
 # trash-d
 
 [![License](https://img.shields.io/github/license/rushsteve1/trash-d)](https://github.com/rushsteve1/trash-d/blob/main/LICENSE)
-[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/rushsteve1/trash-d/d.yml?branch=main)](https://github.com/rushsteve1/trash-d/actions)
+[![GitHub Workflow Status](https://github.com/rushsteve1/trash-d/actions/workflows/ci.yml/badge.svg)](https://github.com/rushsteve1/trash-d/actions/workflows/ci.yml)
 [![GitHub last commit (branch)](https://img.shields.io/github/last-commit/rushsteve1/trash-d/main)](https://github.com/rushsteve1/trash-d/commits/main)
 [![GitHub tag (latest SemVer pre-release)](https://img.shields.io/github/v/tag/rushsteve1/trash-d?label=version)](https://github.com/rushsteve1/trash-d/releases)
 
 Said like "trashed".
 
 A near drop-in replacement for `rm` that uses the
-[FreeDesktop trash bin](https://specifications.freedesktop.org/trash-spec/trashspec-latest.html).
+[FreeDesktop trash bin](https://specifications.freedesktop.org/trash/latest/).
 Written in the [D programming language](https://dlang.org/)
 using only D's Phobos standard library. Can be compiled with any recent D
 compiler including GCC, so `trash-d` should run on any *NIX platform that
