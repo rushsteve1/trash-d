@@ -50,7 +50,7 @@ Create a file with a given name, then trash it using args
 void assert_args_delete(string testfile, string[] args) {
 	// Write one file and trash it
 	testfile.write("hello");
-	auto tinfo = TrashFile(testfile, Clock.currTime());
+	const tinfo = TrashFile(testfile, Clock.currTime());
 
 	// Yes this repeats the other test
 	// Doesn't hurt to test the main purpose of the program thrice
@@ -146,7 +146,7 @@ unittest {
 	scope (exit)
 		testfile.remove();
 	assert(testfile.exists());
-	auto tinfo = TrashFile(testfile, Clock.currTime());
+	const tinfo = TrashFile(testfile, Clock.currTime());
 	assert(tinfo.writeable);
 
 	// Trash the file
@@ -573,7 +573,6 @@ unittest {
 	scope (exit)
 		testdir.rmdirRecurse();
 	assert(testdir.exists());
-	auto tinfo = TrashFile(testdir, Clock.currTime());
 
 	string testfile = testdir ~ "/test.file";
 	testfile.write("hello");

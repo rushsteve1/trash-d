@@ -3,16 +3,21 @@ version = "latest"
 bin_path = "bin"
 strip_components = 1
 
+[tools."github:ldc-developers/ldc".platforms]
+linux-x64 = { asset_pattern = "ldc2-*-linux-x86_64.tar.xz" }
+macos-arm64 = { asset_pattern = "ldc2-*-osx_arm64.tar.xz" }
+
 [tasks]
 build = "dub build"
+release = ["dub build --build=release", "strip build/trash"]
+clean = ["dub clean", "rm -rf build", "rm -rf test-trash"]
 test = ["dub lint", "dub test"]
 coverage = [
+  "dub lint",
   "dub test --coverage",
   "mkdir -p build/coverage",
   "mv *.lst build/coverage",
 ]
-release = ["dub build --build=release", "strip build/trash"]
-clean = ["dub clean", "rm -r build"]
 
 [tasks.format]
 alias = "fmt"
@@ -22,3 +27,7 @@ run = "dub run dfmt -- -i source/**/*.d"
 [tasks.manpage]
 tools = { "scdoc" = "latest" }
 run = "scdoc < MANUAL.scd > build/trash.1"
+
+[tasks.ci]
+tools = { "act" = "latest" }
+run = "act push"

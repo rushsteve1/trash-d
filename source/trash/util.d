@@ -88,6 +88,9 @@ Creates the trash directory folders if they are missing
 	}
 }
 
+/**
+Remove a file, or recursively remove a directory if it passes `dirOk()`
+*/
 @trusted void removeRecurse(in string src) {
 	if (src.isDir() && src.dirOk()) {
 		src.rmdirRecurse();
