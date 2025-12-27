@@ -16,31 +16,31 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: jdx/mise-action@v3
 
-      - name: Test
-        run: mise run coverage
+      - name: Test Coverage
+        run: mise run test
 
       - name: Release Build
         run: mise run release
 
       # Doesn't work on GH Actions, does sr.ht block them?
-      # - name: Man Page with Scdoc
-      #   run: |
-      #     mise plugin link scdoc
-      #     mise run manpage
+      - name: Man Page with Scdoc
+        run: |
+          mise plugin link scdoc
+          mise run manpage
 
       - name: Upload Build Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: "trash-d"
           path: |
-            build/trash
-            build/trash.1
+            ./build/trash
+            ./build/trash.1
 
       - name: Upload Coverage Logs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: "coverage-logs"
-          path: "build/coverage/*.lst"
+          path: "./build/coverage/*.lst"
